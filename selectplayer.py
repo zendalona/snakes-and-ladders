@@ -24,7 +24,7 @@
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
-from copy import GameBoard
+from board1cpy import GameBoard
 
 class SelectPlay(Gtk.Window):
 	def __init__(self):
@@ -67,21 +67,27 @@ class SelectPlay(Gtk.Window):
 		#creating entry for adding player names
 		self.player_name_entries_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
 		vbox.pack_start(self.player_name_entries_vbox, False, False, 20)
+		
 		#creating start button
 		start_button = Gtk.Button(label="Start")
 		#connect the clicked signal to the on_submit_clicked method
 		start_button.connect("clicked", self.on_submit_clicked)
 		start_button.set_size_request(100, 30)
 		
+		vbox.pack_start(self.player_name_entries_vbox, False, False, 10)
+		vbox.pack_start(start_button, False, False, 10)
+		
 		about_button=Gtk.Button(label="About")
 		about_button.connect("clicked",self.on_about_clicked)
-		about_button.set_size_request(100, 30)
+		about_button.set_size_request(20, 30)
 		
-		submit_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-		submit_vbox.pack_start(self.player_name_entries_vbox, False, False, 10)
-		submit_vbox.pack_start(start_button, False, False, 10)
-		submit_vbox.pack_start(about_button, False, False, 10)
+		help_button=Gtk.Button(label="Help")
+		help_button.set_size_request(20, 30) 
 		
+		submit_vbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=50)
+		submit_vbox.pack_start(about_button, False, False, 0)
+		submit_vbox.pack_start(help_button, False, False, 0)
+		vbox.pack_start(submit_vbox, False, False, 50)
 		
 
 		vbox.pack_start(submit_vbox, False, False, 0)  
