@@ -45,11 +45,25 @@ class SelectPlay(Gtk.Window):
 		vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
 		alignment.add(vbox)
 		#creates a label and set its text and font color
-		label = Gtk.Label()
-		label.set_text("Choose the number of players  :")
-		label.override_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.0, 0.0, 1.0, 1.0))
-		vbox.pack_start(label, False, False, 10) # add label to the vertical box container
-
+		label1 = Gtk.Label()
+		label1.set_text("Choose gameboard  :")
+		label1.override_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.0, 0.0, 1.0, 1.0))
+		vbox.pack_start(label1, False, False, 10) # add label to the vertical box container
+		
+		board_combo=Gtk.ComboBoxText()
+		board_combo.connect("changed", self.on_board_selected)
+		board_combo.append_text("Board1")
+		board_combo.append_text("Board2")
+		board_combo.append_text("Board3")
+		board_combo.append_text("Board4")
+		board_combo.append_text("Board5")
+		board_combo.set_active(1)
+		vbox.pack_start(board_combo, False, False, 10)
+		
+		label2 = Gtk.Label()
+		label2.set_text("Choose the number of players:")
+		label2.override_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.0, 0.0, 1.0, 1.0))
+		vbox.pack_start(label2, False, False, 10)
 		
 		player_count_combo = Gtk.ComboBoxText()
 		player_count_combo.connect("changed", self.on_player_count_changed)
@@ -121,7 +135,10 @@ class SelectPlay(Gtk.Window):
 		for entry in self.player_name_entries:
 			self.player_name_entries_vbox.remove(entry)
 		self.player_name_entries.clear()
-
+		
+	def on_board_selected(self,combo):
+		self.board_num = combo.get_active() + 1
+		
 	def on_submit_clicked(self, button):
 		#gets the text from each player name entry field and stores them in the player_names
 		player_names = [entry.get_text() for entry in self.player_name_entries]
@@ -129,7 +146,7 @@ class SelectPlay(Gtk.Window):
 		self.destroy()
 		#if all player names are provided, a GameBoard instance is created with the count and player names
 		if all(player_names):
-			game_board = GameBoard(self.count, player_names)
+			game_board = GameBoard(self.board_num,self.count, player_names)
 			game_board.connect("destroy", Gtk.main_quit)
 			
 	def show_about_dialog(self):

@@ -32,7 +32,7 @@ class Player:
         self.position = position
         self.color=color
 class GameBoard(Gtk.Window):
-    def __init__(self,num_players,players_names):
+    def __init__(self,board_num,num_players,players_names):
         Gtk.Window.__init__(self, title="Game Board")
         self.set_default_size(500, 700)
         self.count = num_players
@@ -42,7 +42,7 @@ class GameBoard(Gtk.Window):
         self.dice_number=1
         
        
-        self.board_num = random.randint(1 , 5)
+        self.board_num = board_num
         self.connect("destroy", self.cleanup)
         
         grid = Gtk.Grid()
@@ -170,9 +170,9 @@ class GameBoard(Gtk.Window):
                     cr.rectangle(x, y, square_size, square_size)
                     cr.stroke() 
                     cr.set_source_rgb(0, 0, 0)  
-                    cr.select_font_face("Arial", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_NORMAL)
+                    cr.select_font_face("Arial", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
                     cr.set_font_size(20)
-                    cr.move_to(x + square_size/2 - 8, y + square_size/2 + 8) 
+                    cr.move_to(x + square_size/2 , y + square_size/2 ) 
                     cr.show_text(str(num)) 
                     num -= 1  
             else:
@@ -184,9 +184,9 @@ class GameBoard(Gtk.Window):
                     cr.stroke() 
                     cr.set_source_rgb(0, 0, 0)
                     
-                    cr.select_font_face("Arial", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_NORMAL)
+                    cr.select_font_face("Arial", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
                     cr.set_font_size(20)
-                    cr.move_to(x + square_size/2 - 8, y + square_size/2 + 8)  
+                    cr.move_to(x + square_size/2 , y + square_size/2 )  
                     cr.show_text(str(num))  
                     num -= 1 
         cr.set_source_rgb(0.6, 0.7, 0.2)
@@ -441,8 +441,8 @@ class GameBoard(Gtk.Window):
         cr.arc(70,125,2,0, 2 * 3.14)
         cr.fill()
         
-        width = 480
-        height = 20
+        width = 330
+        height = 30
         cr.set_source_rgb(0.9, 0.5, 0.5)
         radius = 15
         center_x = width 
@@ -451,14 +451,15 @@ class GameBoard(Gtk.Window):
         cr.fill()
         
         cr.set_line_width(10)
-        cr.move_to(475, 20)  #snakebody
-        cr.curve_to(490,90,300,200,330, 230)  
+        cr.move_to(335, 40)  #snakebody
+        cr.curve_to(490,90,350,200,430, 230)  
         cr.stroke()
         cr.set_source_rgb(0.0, 0.0, 0.0)#eyes
-        cr.arc(475,15,2,0, 2 * 3.14)
+        cr.arc(330,20,2,0, 2 * 3.14)
         cr.fill()
-        cr.arc(490,15,2,0, 2 * 3.14)
+        cr.arc(320,30,2,0, 2 * 3.14)
         cr.fill()
+        
         
         
     
@@ -504,24 +505,24 @@ class GameBoard(Gtk.Window):
             dot_radius = 4
             cr.arc(dot_x, dot_y, dot_radius, 0, 2 * math.pi)
             cr.fill()
-        cr.set_source_rgb(0.2, 0, 0)
-        cr.move_to(25,515)
-        cr.set_font_size(18)
+        cr.set_source_rgb(1, 0, 0)
+        cr.move_to(18,520)
+        cr.set_font_size(15)
         cr.show_text("Player Name") 
-        cr.move_to(150,515)
+        cr.move_to(130,520)
         cr.show_text("Position")      
-        i=25
+        i=20
         for player in self.players:
             x, y = self.get_cell_coordinates(player.position[0], player.position[1])
             cr.set_source_rgb(*player.color)
             cr.arc(x + square_size/2, y + square_size/2, 10, 0, 2 * math.pi)  
             cr.fill()
             
-            cr.arc(25 , 510+i, 10, 0, 2 * math.pi)
+            cr.arc(25 , 515+i, 10, 0, 2 * math.pi)
             cr.fill()  
-            cr.select_font_face("Arial", cairo.FONT_SLANT_ITALIC, cairo.FONT_WEIGHT_NORMAL)
-            cr.set_font_size(18)
-            cr.move_to(50,515+i)
+            cr.select_font_face("Arial", cairo.FONT_SLANT_ITALIC, cairo.FONT_WEIGHT_BOLD)
+            cr.set_font_size(15)
+            cr.move_to(50,520+i)
             cr.show_text(player.name)
             
             row=player.position[0]
@@ -530,7 +531,7 @@ class GameBoard(Gtk.Window):
                 num = (9 - row) * 10 + col + 1
             else:
                num = (9 - row) * 10 +(9 - col) + 1 
-            cr.move_to(160,515+i)
+            cr.move_to(160,520+i)
             cr.show_text(str(num))
             i+=30
             
@@ -569,6 +570,7 @@ class GameBoard(Gtk.Window):
             return
     
         self.dice_number = random.randint(1, 6)
+        self.speech.speak("you got a"+str(self.dice_number)+"on the dice")
         player = self.players[self.count % len(self.players)] 
         current_row, current_col = player.position[0], player.position[1]
         if current_row % 2 != 0:
@@ -617,7 +619,7 @@ class GameBoard(Gtk.Window):
             number = (9 - row) * 10 +(9 - col) + 1
             #self.speech.cancel()  
             self.speech.speak(player.name+"in position"+str(number))  
-        self.snakes = [ 23 , 35 , 49 , 56 , 79 , 89 , 91 , 99]
+        self.snakes = [ 23 , 35 , 49 , 56 , 79 , 89 , 94 , 99]
         self.ladders = [ 6 , 13 , 21 ,  50 , 64 , 68 , 80]
         if number in self.ladders:
             self.speech.speak("great !! You have found a ladder!")
@@ -671,8 +673,8 @@ class GameBoard(Gtk.Window):
             end_pos = [ 4, 0 ]
         elif number == 89 :
             end_pos = [ 4 , 5]
-        elif number == 91 :
-            end_pos = [4 , 6 ]
+        elif number == 94 :
+            end_pos = [4 , 8 ]
         elif number == 99 :
             end_pos = [ 6, 3]
         
