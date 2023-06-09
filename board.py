@@ -573,6 +573,7 @@ class GameBoard(Gtk.Window):
         self.speech.speak("you got a"+str(self.dice_number)+"on the dice")
         player = self.players[self.count % len(self.players)] 
         current_row, current_col = player.position[0], player.position[1]
+        
         if current_row % 2 != 0:
             new_col = current_col + self.dice_number
             if new_col >= 10:
