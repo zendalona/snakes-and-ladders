@@ -21,15 +21,19 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ###########################################################################
-import gi
+import gi , speechd
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gdk
-from board1cpy import GameBoard
+from gi.repository import Gtk, Gdk 
+from board import GameBoard
 
 class SelectPlay(Gtk.Window):
 	def __init__(self):
 		Gtk.Window.__init__(self, title="Select Player")
 		self.set_default_size(500, 500)
+		
+		self.speech = speechd.SSIPClient('select_player')
+		
+		self.speech.speak("welcome to snake and ladder game") 
 
 		#We will fix this later 
 		#self.connect("destroy", Gtk.main_quit)
@@ -47,6 +51,7 @@ class SelectPlay(Gtk.Window):
 		#creates a label and set its text and font color
 		label1 = Gtk.Label()
 		label1.set_text("Choose gameboard  :")
+		label1.set_use_underline(True)
 		label1.override_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.0, 0.0, 1.0, 1.0))
 		vbox.pack_start(label1, False, False, 10) # add label to the vertical box container
 		
@@ -58,10 +63,12 @@ class SelectPlay(Gtk.Window):
 		board_combo.append_text("Board4")
 		board_combo.append_text("Board5")
 		board_combo.set_active(1)
+		label1.set_mnemonic_widget(board_combo)
 		vbox.pack_start(board_combo, False, False, 10)
 		
 		label2 = Gtk.Label()
 		label2.set_text("Choose the number of players:")
+		label2.set_use_underline(True)
 		label2.override_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.0, 0.0, 1.0, 1.0))
 		vbox.pack_start(label2, False, False, 10)
 		
@@ -73,6 +80,7 @@ class SelectPlay(Gtk.Window):
 		player_count_combo.append_text("3")
 		player_count_combo.append_text("4")
 		player_count_combo.append_text("5")
+		label2.set_mnemonic_widget(player_count_combo)
 
 		player_count_combo.set_size_request(100, 30)
 		#adding combobox to vbox
@@ -91,10 +99,12 @@ class SelectPlay(Gtk.Window):
 		vbox.pack_start(self.player_name_entries_vbox, False, False, 10)
 		vbox.pack_start(start_button, False, False, 10)
 		
+		#creating about button
 		about_button=Gtk.Button(label="About")
 		about_button.connect("clicked",self.on_about_clicked)
 		about_button.set_size_request(20, 30)
 		
+		#creating help button
 		help_button=Gtk.Button(label="Help")
 		help_button.set_size_request(20, 30) 
 		
