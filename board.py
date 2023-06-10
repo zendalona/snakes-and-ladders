@@ -21,7 +21,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ###########################################################################
-import cairo ,speechd ,math,time
+import cairo ,speechd ,math,time,threading
 import gi
 import random
 gi.require_version("Gtk", "3.0")
@@ -597,17 +597,11 @@ class GameBoard(Gtk.Window):
         player.position[0],player.position[1] = [current_row, new_col]
         self.count += 1 
         self.queue_draw() 
+        time.sleep(1)
+        self.speak_number(current_row, new_col,player) 
         
-        self.speak_number(current_row, new_col,player)   
-        player = self.players[self.count % len(self.players)] 
-        if self.check_game_over():
-            winner = self.get_winner()
-            self.speech.speak("Congratulations, " + winner.name + " has won the game!")
-        else:
-            if player.name == "Machine":
-                GLib.timeout_add(8000, self.roll_dice)
-            else:    
-                self.speech.speak(player.name+"can roll dice by pressing spacebar")
+         
+        
             
         
     def speak_number(self, row, col,player):
@@ -643,45 +637,124 @@ class GameBoard(Gtk.Window):
                 if (ladder - number) <= 6 and (ladder - number) > 0:
                     pos = ladder - number
                     self.speech.speak(" there is a ladder at " + str(ladder) +"it is"+str(pos)+"position away from you")
-                
+            player = self.players[self.count % len(self.players)] 
+            if self.check_game_over():
+                winner = self.get_winner()
+                self.speech.speak("Congratulations, " + winner.name + " has won the game!")
+            else:
+                if player.name == "Machine":
+                    GLib.timeout_add(8000, self.roll_dice)
+                else:    
+                    self.speech.speak(player.name+"can roll dice by pressing spacebar")   
             
-    def move_player(self,player,number):
-        time.sleep(2)
+    def move_player(self, player, number):
+        time.sleep(1)
         
-        if number == 6:
-            end_pos = [7, 4]
-        elif number == 13:
-            end_pos = [3, 4]
-        elif number == 21:
-            end_pos = [4, 1]
-        elif number == 50:
-            end_pos = [3, 9]
-        elif number == 64:
-            end_pos = [0, 4]
-        elif number == 68:
-            end_pos = [1, 5]
-        elif number == 80:
-            end_pos = [0, 2]
-        elif number == 23:
-            end_pos = [ 9, 4 ]
-        elif number == 35:
-            end_pos = [9 , 6]
-        elif number == 49:
-            end_pos = [ 8, 8]
-        elif number == 56 :
-            end_pos = [ 7,3 ]
-        elif number == 79 :
-            end_pos = [ 4, 0 ]
-        elif number == 89 :
-            end_pos = [ 4 , 5]
-        elif number == 94 :
-            end_pos = [4 , 8 ]
-        elif number == 99 :
-            end_pos = [ 6, 3]
+        #if number in [6, 13, 21, 50, 64, 68, 80, 23, 35, 49, 56, 79, 89,94 , 99]:
+        end_pos = self.get_end_position(number)
+        if end_pos[0] < player.position[0]:
+            thread = threading.Thread(target=self.climb_up, args=(player, end_pos))
+        else:
+            thread = threading.Thread(target=self.descend, args=(player, end_pos))
+
+        thread.start()
+        
+    '''else:
+        player.position = self.get_end_position(number)
+        self.queue_draw()
+        self.speak_number(player.position[0], player.position[1], player,callback)'''
+    
+    def climb_up(self, player, end_pos):
+        start_pos = player.position
+    
+        
+        col = player.position[1]
+        for row in range(start_pos[0], end_pos[0], -1):
+            if col < end_pos[1] :
+                player.position = [row, col]
+                Gdk.threads_enter()
+                self.queue_draw()
+                Gdk.threads_leave()
+                col=col+1
+            elif col > end_pos[1] :
+                player.position = [row, col]
+                Gdk.threads_enter()
+                self.queue_draw()
+                Gdk.threads_leave()
+                col=col-1
+            else:
+                player.position = [row, col]
+                Gdk.threads_enter()
+                self.queue_draw()
+                Gdk.threads_leave()
+                
+                
+            # Delay between each step
+            time.sleep(0.2)
+    
+            
         
         player.position = end_pos
-        self.queue_draw()
         self.speak_number(player.position[0], player.position[1], player)
+        self.queue_draw()
+    
+        
+        
+    def descend(self, player, end_pos):
+        start_pos = player.position
+    
+        col=start_pos[1]
+        for row in range(start_pos[0], end_pos[0]):
+            if col<end_pos[1]:
+                player.position = [row, col]
+                Gdk.threads_enter()
+                self.queue_draw()
+                Gdk.threads_leave()
+                col = col+1
+            elif col > end_pos[1]:
+                player.position = [row, col]
+                Gdk.threads_enter()
+                self.queue_draw()
+                Gdk.threads_leave()
+                col = col-1
+            else:
+                player.position = [row, col]
+                Gdk.threads_enter()
+                self.queue_draw()
+                Gdk.threads_leave()
+                
+                
+    
+            # Delay between each step
+            time.sleep(0.2)
+    
+           
+        player.position = end_pos
+        self.speak_number(player.position[0], player.position[1], player)
+        self.queue_draw()
+        
+    
+    def get_end_position(self, number):
+        ladder_positions = {
+            6: [7, 4],
+            13: [3, 4],
+            21: [4, 1],
+            50: [3, 9],
+            64: [0, 4],
+            68: [1, 5],
+            80: [0, 2],
+            23: [9, 4],
+            35: [9, 6],
+            49: [8, 8],
+            56: [7, 3],
+            79: [4, 0],
+            89: [4, 5],
+            94: [4, 8],
+            99: [6, 3]
+        }
+        
+        return ladder_positions[number]
+
 
     def cleanup(self, widget):
         self.speech.close() 
@@ -737,4 +810,5 @@ class GameBoard(Gtk.Window):
             self.speech.speak("its a snake")
         elif num in ladders:
             self.speech.speak("its a ladder")
-
+        
+        
