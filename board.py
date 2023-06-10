@@ -21,11 +21,20 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ###########################################################################
+
+
 import cairo ,speechd ,math,time,threading
 import gi
 import random
 gi.require_version("Gtk", "3.0")
+gi.require_version('Gst', '1.0')
+from gi.repository import Gst
+import re
+import os
 from gi.repository import Gtk,Gdk,GLib
+
+Gst.init(None)
+
 class Player:
     def __init__(self, name, position,color):
         self.name = name
@@ -82,21 +91,31 @@ class GameBoard(Gtk.Window):
         self.players_names=players_names
         
         self.create_players()
+        self.cwd = os.getcwd()
+        self.player1 = Gst.ElementFactory.make('playbin', 'player1')
+        # Playing starting sound
+        play_thread = threading.Thread(target=self.play_file, args=('start.ogg',))
+        play_thread.start()
+
+        time.sleep(1)
         
         self.speech.speak(self.players_names[0]+"can roll dice by pressing the space bar")
    
     def create_players(self):
         colors = [(0.5, 0.3, 0), (0, 0.7, 0.4), (0.2, 0, 0.5), (0.6, 0.7, 0),(0.0,0.9,0.2)] 
+        
         for i in range(self.num_players):
             player_name = self.players_names[i]
             player_color = colors[i % len(colors)] 
             player = Player(player_name, [9, 0],player_color)  
             self.players.append(player)
+        
         if self.num_players == 1:
             player = Player("Machine", [9, 0], colors[1 % len(colors)])  
             self.players.append(player)
             self.num_players=2
             self.count =2
+    
     def draw_board(self, widget, cr):
         
         cr.set_source_rgb(1, 1, 1)  
@@ -581,6 +600,7 @@ class GameBoard(Gtk.Window):
                 count= self.dice_number- (10 - current_col)
                 current_row -= 1
                 new_col = new_col - count
+                
         elif current_row % 2 == 0:
             new_col = current_col - self.dice_number
             if new_col < 0:
@@ -588,6 +608,7 @@ class GameBoard(Gtk.Window):
                 new_col = 0
                 current_row -= 1
                 new_col -= count + 1
+                
         if current_row < 0 :
             current_row =0
             new_col=current_col
@@ -629,6 +650,7 @@ class GameBoard(Gtk.Window):
             #time.sleep(0.5)
             self.move_player(player,number) 
         else :
+			
             for snake in self.snakes:
                 if ( snake - number) <=6 and (snake -number) > 0 :
                     pos = snake -number
@@ -641,6 +663,7 @@ class GameBoard(Gtk.Window):
             if self.check_game_over():
                 winner = self.get_winner()
                 self.speech.speak("Congratulations, " + winner.name + " has won the game!")
+                self.play_file('got_promotion')
             else:
                 if player.name == "Machine":
                     GLib.timeout_add(8000, self.roll_dice)
@@ -648,7 +671,7 @@ class GameBoard(Gtk.Window):
                     self.speech.speak(player.name+"can roll dice by pressing spacebar")   
             
     def move_player(self, player, number):
-        time.sleep(1)
+        time.sleep(3)
         
         #if number in [6, 13, 21, 50, 64, 68, 80, 23, 35, 49, 56, 79, 89,94 , 99]:
         end_pos = self.get_end_position(number)
@@ -667,7 +690,7 @@ class GameBoard(Gtk.Window):
     def climb_up(self, player, end_pos):
         start_pos = player.position
     
-        
+        self.play_file('next_level_6.ogg')
         col = player.position[1]
         for row in range(start_pos[0], end_pos[0], -1):
             if col < end_pos[1] :
@@ -724,7 +747,7 @@ class GameBoard(Gtk.Window):
                 Gdk.threads_leave()
                 
                 
-    
+            self.play_file('wrong_pressed.ogg')
             # Delay between each step
             time.sleep(0.2)
     
@@ -794,7 +817,7 @@ class GameBoard(Gtk.Window):
             self.current_cell = [new_row, new_col]    
             self.speak(new_row,new_col)
             
-            
+    # method to speak number and player position by pressing arrow keys        
     def speak(self,row,col):
         if(row % 2 != 0) :
             num = (9 - row) * 10 + col + 1
@@ -810,5 +833,14 @@ class GameBoard(Gtk.Window):
             self.speech.speak("its a snake")
         elif num in ladders:
             self.speech.speak("its a ladder")
-        
-        
+        for i in range(self.num_players):
+            player = self.players[i] 
+            if player.position == [row ,col]:
+                self.speech.speak(player.name +"in  position"+str(num))
+                
+    #method to play music            
+    def play_file(self, filename):
+        file_path_and_name = 'file:///' + self.cwd + '/sounds/' + filename
+        self.player1.set_state(Gst.State.READY)
+        self.player1.set_property('uri', file_path_and_name)
+        self.player1.set_state(Gst.State.PLAYING)    
