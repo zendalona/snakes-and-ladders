@@ -32,6 +32,7 @@ from gi.repository import Gst
 import re
 import os
 from gi.repository import Gtk,Gdk,GLib
+from gi.repository import Atk
 
 Gst.init(None)
 
@@ -45,8 +46,9 @@ class GameBoard(Gtk.Window):
         Gtk.Window.__init__(self, title="Game Board")
         self.set_default_size(500, 700)
         self.count = num_players
+        self.i=2
         color_rgb = Gdk.RGBA(1, 1, 1, 1)
-        self.override_background_color(Gtk.StateFlags.NORMAL,color_rgb)
+        #self.override_background_color(Gtk.StateFlags.NORMAL,color_rgb)
         self.speech = speechd.SSIPClient('game_board')  
         self.dice_number=1
         
@@ -54,8 +56,8 @@ class GameBoard(Gtk.Window):
         self.board_num = board_num
         self.connect("destroy", self.cleanup)
         
-        grid = Gtk.Grid()
-        self.add(grid)
+        vbox = Gtk.VBox()
+        self.add(vbox)
        
         
         drawing_area = Gtk.DrawingArea()
@@ -74,7 +76,13 @@ class GameBoard(Gtk.Window):
         self.current_cell= [9, 0]
        
        
-        grid.attach(scrolled_window, 0, 0, 1, 1)
+
+        vbox.pack_start(scrolled_window, False, True, 0)
+
+        self.status_bar = AccessibleStatusbar()
+        #self.status_bar.set_text("HELLO",2 )
+        vbox.pack_start(self.status_bar, False, True, 0)
+
         
        
         
@@ -82,14 +90,14 @@ class GameBoard(Gtk.Window):
         '''button = Gtk.Button(label="Roll dice")
         button.connect("clicked", self.roll_dice)'''        
       
-        grid.show_all()
+        vbox.show_all()
         
         self.connect("destroy", Gtk.main_quit)
         self.show_all()
         self.players = [] 
         self.num_players = num_players
         self.players_names=players_names
-        
+       
         self.create_players()
         self.cwd = os.getcwd()
         self.player1 = Gst.ElementFactory.make('playbin', 'player1')
@@ -99,7 +107,7 @@ class GameBoard(Gtk.Window):
 
         time.sleep(1)
         
-        self.speech.speak(self.players_names[0]+"can roll dice by pressing the space bar")
+        self.notify(self.players_names[0]+"can roll dice by pressing the space bar")
    
     def create_players(self):
         colors = [(0.5, 0.3, 0), (0, 0.7, 0.4), (0.2, 0, 0.5), (0.6, 0.7, 0),(0.0,0.9,0.2)] 
@@ -589,10 +597,12 @@ class GameBoard(Gtk.Window):
             return
     
         self.dice_number = random.randint(1, 6)
-        self.speech.speak("you got a"+str(self.dice_number)+"on the dice")
+        self.i=1
+        
         player = self.players[self.count % len(self.players)] 
         current_row, current_col = player.position[0], player.position[1]
-        
+        if player.name != "Machine" :
+            self.notify("you got a"+str(self.dice_number)+"on the dice")
         if current_row % 2 != 0:
             new_col = current_col + self.dice_number
             if new_col >= 10:
@@ -612,8 +622,8 @@ class GameBoard(Gtk.Window):
         if current_row < 0 :
             current_row =0
             new_col=current_col
-            self.speech.cancel()
-            self.speech.speak("the number is larger than the number you were hoping to win")
+            self.notify_cancel()
+            self.notify("the number is larger than the number you were hoping to win")
             
         player.position[0],player.position[1] = [current_row, new_col]
         self.count += 1 
@@ -629,24 +639,26 @@ class GameBoard(Gtk.Window):
          
         if(row % 2 != 0) :
             number = (9 - row) * 10 + col + 1
-            #self.speech.cancel() 
-            self.speech.speak(player.name+"in position"+str(number))  
+            #self.notify_cancel()
+            self.notify(player.name+"in position"+str(number))
         else :
             number = (9 - row) * 10 +(9 - col) + 1
-            #self.speech.cancel()  
-            self.speech.speak(player.name+"in position"+str(number))  
+            #self.notify_cancel()
+            self.notify(player.name+"in position"+str(number))
+        
         self.snakes = [ 23 , 35 , 49 , 56 , 79 , 89 , 94 , 99]
         self.ladders = [ 6 , 13 , 21 ,  50 , 64 , 68 , 80]
         if number in self.ladders:
-            self.speech.speak("great !! You have found a ladder!")
+            self.notify("great !! You have found a ladder!")
             
             #time.sleep(0.5)
             self.move_player(player,number) 
 
         elif number in self.snakes:
-            self.speech.speak("oops !! you are on a snake ")
+            
+            self.notify("oops !! you are on a snake ")
            
-            self.speech.speak("you have to move back!")
+           
             #time.sleep(0.5)
             self.move_player(player,number) 
         else :
@@ -654,24 +666,28 @@ class GameBoard(Gtk.Window):
             for snake in self.snakes:
                 if ( snake - number) <=6 and (snake -number) > 0 :
                     pos = snake -number
-                    self.speech.speak("watch out !there is a snake at " + str(snake) +"and it is" +str(pos)+"position away from you")
+                    self.notify("watch out !there is a snake at " + str(snake) +"and it is " +str(pos)+" position away from you")
             for ladder in self.ladders :
                 if (ladder - number) <= 6 and (ladder - number) > 0:
                     pos = ladder - number
-                    self.speech.speak(" there is a ladder at " + str(ladder) +"it is"+str(pos)+"position away from you")
+                    self.notify(" there is a ladder at " + str(ladder) +"it is " +str(pos)+" position away from you")
             player = self.players[self.count % len(self.players)] 
+         
+                
             if self.check_game_over():
                 winner = self.get_winner()
-                self.speech.speak("Congratulations, " + winner.name + " has won the game!")
-                self.play_file('got_promotion')
+                self.play_file('got_promotion.ogg')
+                self.notify("Congratulations, " + winner.name + " has won the game!")
+                
             else:
                 if player.name == "Machine":
                     GLib.timeout_add(8000, self.roll_dice)
-                else:    
-                    self.speech.speak(player.name+"can roll dice by pressing spacebar")   
+                else: 
+                  
+                    self.notify(player.name+"can roll dice by pressing spacebar")
             
     def move_player(self, player, number):
-        time.sleep(3)
+        #time.sleep(3)
         
         #if number in [6, 13, 21, 50, 64, 68, 80, 23, 35, 49, 56, 79, 89,94 , 99]:
         end_pos = self.get_end_position(number)
@@ -689,7 +705,7 @@ class GameBoard(Gtk.Window):
     
     def climb_up(self, player, end_pos):
         start_pos = player.position
-    
+        time.sleep(3)
         self.play_file('next_level_6.ogg')
         col = player.position[1]
         for row in range(start_pos[0], end_pos[0], -1):
@@ -725,7 +741,7 @@ class GameBoard(Gtk.Window):
         
     def descend(self, player, end_pos):
         start_pos = player.position
-    
+        time.sleep(3)
         col=start_pos[1]
         for row in range(start_pos[0], end_pos[0]):
             if col<end_pos[1]:
@@ -796,6 +812,7 @@ class GameBoard(Gtk.Window):
         return None
                
     def on_key_press(self, widget, event):
+        self.i=1
         keyval = event.keyval
         if keyval == Gdk.KEY_Left:
             self.move_current_cell(-1, 0)
@@ -821,22 +838,37 @@ class GameBoard(Gtk.Window):
     def speak(self,row,col):
         if(row % 2 != 0) :
             num = (9 - row) * 10 + col + 1
-            self.speech.cancel() 
-            self.speech.speak(str(num))  
+            self.notify_cancel()
+            self.notify(str(num))
         else :
             num = (9 - row) * 10 +(9 - col) + 1
-            self.speech.cancel()  
-            self.speech.speak(str(num))  
+            self.notify_cancel()
+            self.notify(str(num))
         snakes = [ 23 , 35 , 49 , 56 , 79 , 89 , 91 , 99]
         ladders = [ 6 , 13 , 21 ,  50 , 64 , 68 , 80]
         if num in snakes :
-            self.speech.speak("its a snake")
+            self.notify("its a snake")
         elif num in ladders:
-            self.speech.speak("its a ladder")
+            self.notify("its a ladder")
         for i in range(self.num_players):
             player = self.players[i] 
             if player.position == [row ,col]:
-                self.speech.speak(player.name +"in  position"+str(num))
+                self.notify(player.name +"in  position"+str(num))
+
+    def notify(self, text):
+	    #self.speech.speak(text)
+	    
+	    
+	    thread2 = threading.Thread(target=self.status_bar.set_text, args=(text, self.i))
+	    print("Notification: " + text)
+	    thread2.start()
+	    self.i=self.i+1
+	    #self.status_bar.set_text(text)
+
+    def notify_cancel(self):
+	    self.speech.cancel()
+	    #self.status_bar.set_text("")
+
                 
     #method to play music            
     def play_file(self, filename):
@@ -844,3 +876,37 @@ class GameBoard(Gtk.Window):
         self.player1.set_state(Gst.State.READY)
         self.player1.set_property('uri', file_path_and_name)
         self.player1.set_state(Gst.State.PLAYING)    
+
+class AccessibleStatusbar(Gtk.Frame):
+	def __init__(self):
+		super(AccessibleStatusbar,self).__init__()
+		
+		self.label = Gtk.Label()
+		frame_inner = Gtk.Frame()
+		frame_inner.add(self.label)
+		atk_ob1 = frame_inner.get_accessible()
+		atk_ob1.set_role(Atk.Role.NOTIFICATION)
+
+		self.add(frame_inner)
+		atk_ob = self.get_accessible()
+		atk_ob.set_role(Atk.Role.STATUSBAR)
+		
+
+	def set_text(self,text,delay):
+		print("delay"+str(delay))
+		time.sleep(delay)
+		self.label.set_text(text)
+		child = self.get_children()[0]
+		atk_ob = child.get_accessible()
+		atk_ob.notify_state_change(Atk.StateType.SHOWING,True)
+		
+	
+
+
+	def set_line_wrap(self,val):
+		self.label.set_line_wrap(val)
+
+if __name__ == "__main__":
+	game_board = GameBoard(1, 2, ["Kevin" , "Lenin"])
+	game_board.connect("destroy", Gtk.main_quit)
+	Gtk.main()
