@@ -59,13 +59,13 @@ class GameBoard(Gtk.Window):
         vbox = Gtk.VBox()
         self.add(vbox)
         screen = Gdk.Screen.get_default()
-        width = screen.get_width()
-        height = screen.get_height()
+        self.width = screen.get_width()
+        self.height = screen.get_height()
         #print("Monitor resolution:", width, "x", height)
        
         #self.set_default_size(width,700)
         drawing_area = Gtk.DrawingArea()
-        drawing_area.set_size_request(500,height - 115)
+        drawing_area.set_size_request(800,self.height - 115)
         drawing_area.connect("draw", self.draw_board)
         drawing_area.add_events(Gdk.EventMask.KEY_PRESS_MASK)
         self.connect("key-press-event", self.on_key_press)  
@@ -129,7 +129,7 @@ class GameBoard(Gtk.Window):
             self.count =2
     
     def draw_board(self, widget, cr):
-        self.window_width = widget.get_allocated_width()
+        self.window_width = widget.get_allocated_width() - 300
         self.window_height = widget.get_allocated_height()
         #print("width="+str(self.window_width))
         #print("height="+str(self.window_height))
@@ -138,6 +138,7 @@ class GameBoard(Gtk.Window):
         # Calculate the size of each square based on the window dimensions
         self.square_size = min(self.window_width // 10, self.window_height  // 10)
         self.diff = self.square_size - 50
+        board_size = self.square_size * 10
         cr.set_source_rgb(1, 1, 1)
         cr.paint()
     
@@ -462,11 +463,11 @@ class GameBoard(Gtk.Window):
         
     
        
+       
+        dice_size = self.square_size
+        dice_x = board_size + 150
+        dice_y = board_size - dice_size
             
-        dice_size = 50
-        dice_x = 300  
-        dice_y = 580  
-    
        
         cr.set_line_width(2)
         cr.set_source_rgb(0, 0, 1)
@@ -503,24 +504,25 @@ class GameBoard(Gtk.Window):
             dot_radius = 4
             cr.arc(dot_x, dot_y, dot_radius, 0, 2 * math.pi)
             cr.fill()
+            
         cr.set_source_rgb(1, 0, 0)
-        cr.move_to(self.square_size * 10+50,50)
-        cr.set_font_size(15)
+        cr.move_to(board_size+board_size // 10,2 * self.square_size)
+        cr.set_font_size(self.square_size // 3)
         cr.show_text("Player Name") 
-        cr.move_to(130,520)
+        cr.move_to(board_size+(board_size //10  * 4),2 * self.square_size)
         cr.show_text("Position")      
-        i=20
+        i=1
         for player in self.players:
             x, y = self.get_cell_coordinates(player.position[0], player.position[1])
             cr.set_source_rgb(*player.color)
             cr.arc(x + self.square_size/2, y +self.square_size/2, 10, 0, 2 * math.pi)  
             cr.fill()
             
-            cr.arc(25 , 515+i, 10, 0, 2 * math.pi)
+            cr.arc( board_size+board_size // 10 -20,(2 + i) * self.square_size-10 , 10, 0, 2 * math.pi)
             cr.fill()  
             cr.select_font_face("Arial", cairo.FONT_SLANT_ITALIC, cairo.FONT_WEIGHT_BOLD)
-            cr.set_font_size(15)
-            cr.move_to(50,520+i)
+            cr.set_font_size(self.square_size // 3)
+            cr.move_to(board_size+board_size // 10,(2+ i) * self.square_size )
             cr.show_text(player.name)
             
             row=player.position[0]
@@ -529,9 +531,9 @@ class GameBoard(Gtk.Window):
                 num = (9 - row) * 10 + col + 1
             else:
                num = (9 - row) * 10 +(9 - col) + 1 
-            cr.move_to(160,520+i)
+            cr.move_to(board_size+(board_size //10  * 4) + 30,(2+i) * self.square_size)
             cr.show_text(str(num))
-            i+=30
+            i+=1
             
          
 	       
@@ -636,7 +638,7 @@ class GameBoard(Gtk.Window):
             for snake in self.snakes:
                 if ( snake - number) <=6 and (snake -number) > 0 :
                     pos = snake -number
-                    self.notify("watch out !there is a snake at " + str(snake) +"and it is " +str(pos)+" position away from you")
+                    self.notify("watch out !there is a snake at " + str(snake) +" and it is " +str(pos)+" position away from you")
             for ladder in self.ladders :
                 if (ladder - number) <= 6 and (ladder - number) > 0:
                     pos = ladder - number
@@ -877,6 +879,6 @@ class AccessibleStatusbar(Gtk.Frame):
 		self.label.set_line_wrap(val)
 
 if __name__ == "__main__":
-	game_board = GameBoard(1, 2, ["Kevin" , "Lenin" ])
+	game_board = GameBoard(1, 5, ["Kevin" , "Lenin","ravi","nali","manu" ])
 	game_board.connect("destroy", Gtk.main_quit)
 	Gtk.main()
