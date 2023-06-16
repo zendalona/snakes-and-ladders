@@ -111,7 +111,7 @@ class GameBoard(Gtk.Window):
 
         time.sleep(1)
         
-        self.notify(self.players_names[0]+"can roll dice by pressing the space bar")
+        self.notify(self.players_names[0]+" can roll dice by pressing the space bar")
    
     def create_players(self):
         colors = [(0.5, 0.3, 0), (0, 0.7, 0.4), (0.2, 0, 0.5), (0.6, 0.7, 0),(0.0,0.9,0.2)] 
@@ -571,7 +571,7 @@ class GameBoard(Gtk.Window):
     
         self.dice_number = random.randint(1, 6)
         self.i=1
-        self.notify("you got a"+str(self.dice_number)+"on the dice")
+        self.notify("you got a "+str(self.dice_number)+" on the dice")
         player = self.players[self.count % len(self.players)] 
         current_row, current_col = player.position[0], player.position[1]
         
@@ -612,11 +612,11 @@ class GameBoard(Gtk.Window):
         if(row % 2 != 0) :
             number = (9 - row) * 10 + col + 1
             #self.notify_cancel()
-            self.notify(player.name+"in position"+str(number))
+            self.notify(player.name+" in position "+str(number))
         else :
             number = (9 - row) * 10 +(9 - col) + 1
             #self.notify_cancel()
-            self.notify(player.name+"in position"+str(number))
+            self.notify(player.name+" in position "+str(number))
         
         self.snakes = [ 23 , 35 , 49 , 56 , 79 , 89 , 94 , 99]
         self.ladders = [ 6 , 13 , 21 ,  50 , 64 , 68 , 80]
@@ -656,7 +656,7 @@ class GameBoard(Gtk.Window):
                     GLib.timeout_add(8000, self.roll_dice)
                 else: 
                   
-                    self.notify(player.name+"can roll dice by pressing spacebar")
+                    self.notify(player.name+" can roll dice by pressing spacebar")
             
     def move_player(self, player, number):
         #time.sleep(3)
@@ -825,7 +825,7 @@ class GameBoard(Gtk.Window):
         for i in range(self.num_players):
             player = self.players[i] 
             if player.position == [row ,col]:
-                self.notify(player.name +"in  position"+str(num))
+                self.notify(player.name +" in  position "+str(num))
 
     def notify(self, text):
 	    #self.speech.speak(text)
@@ -879,6 +879,6 @@ class AccessibleStatusbar(Gtk.Frame):
 		self.label.set_line_wrap(val)
 
 if __name__ == "__main__":
-	game_board = GameBoard(1, 5, ["Kevin" , "Lenin","ravi","nali","manu" ])
+	game_board = GameBoard(1, 2, ["Kevin" , "Lenin"])
 	game_board.connect("destroy", Gtk.main_quit)
 	Gtk.main()
