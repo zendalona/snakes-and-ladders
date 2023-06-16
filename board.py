@@ -44,7 +44,7 @@ class Player:
 class GameBoard(Gtk.Window):
     def __init__(self,board_num,num_players,players_names):
         Gtk.Window.__init__(self, title="Game Board")
-        self.set_default_size(500, 700)
+       
         self.count = num_players
         self.i=2
         color_rgb = Gdk.RGBA(1, 1, 1, 1)
@@ -58,10 +58,14 @@ class GameBoard(Gtk.Window):
         
         vbox = Gtk.VBox()
         self.add(vbox)
+        screen = Gdk.Screen.get_default()
+        width = screen.get_width()
+        height = screen.get_height()
+        #print("Monitor resolution:", width, "x", height)
        
-        
+        #self.set_default_size(width,700)
         drawing_area = Gtk.DrawingArea()
-        drawing_area.set_size_request(500, 700)
+        drawing_area.set_size_request(500,height - 115)
         drawing_area.connect("draw", self.draw_board)
         drawing_area.add_events(Gdk.EventMask.KEY_PRESS_MASK)
         self.connect("key-press-event", self.on_key_press)  
@@ -69,15 +73,15 @@ class GameBoard(Gtk.Window):
         
         
        
-        scrolled_window = Gtk.ScrolledWindow()
+        '''scrolled_window = Gtk.ScrolledWindow()
         scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
-        scrolled_window.set_size_request(500,700)
-        scrolled_window.add(drawing_area)
+        scrolled_window.set_size_request(600,600)
+        scrolled_window.add(drawing_area)'''
         self.current_cell= [9, 0]
        
        
 
-        vbox.pack_start(scrolled_window, False, True, 0)
+        vbox.pack_start(drawing_area, False, True, 0)
 
         self.status_bar = AccessibleStatusbar()
         #self.status_bar.set_text("HELLO",2 )
@@ -125,109 +129,98 @@ class GameBoard(Gtk.Window):
             self.count =2
     
     def draw_board(self, widget, cr):
+        self.window_width = widget.get_allocated_width()
+        self.window_height = widget.get_allocated_height()
+        #print("width="+str(self.window_width))
+        #print("height="+str(self.window_height))
+       
         
-        cr.set_source_rgb(1, 1, 1)  
+        # Calculate the size of each square based on the window dimensions
+        self.square_size = min(self.window_width // 10, self.window_height  // 10)
+        self.diff = self.square_size - 50
+        cr.set_source_rgb(1, 1, 1)
         cr.paint()
-        
-        
-        cr.set_source_rgb(0, 0, 0)  
+    
+        cr.set_source_rgb(0, 0, 0)
+    
         for i in range(10):
             for j in range(10):
-                cr.rectangle(i * 50, j * 50, 50, 50) 
-                
-                
-                if self.board_num == 1: 
+                cr.rectangle(i * self.square_size, j * self.square_size, self.square_size, self.square_size)
+    
+                if self.board_num == 1:
                     if (i+j) % 2 == 0:
-                        cr.set_source_rgb(1, 1, 1)     
-                                
+                        cr.set_source_rgb(1, 1, 1)
                     else:
-                        cr.set_source_rgb(0, 0, 1)     
-	                           
-	        
-                    cr.fill_preserve()
-                    cr.stroke() 
-                    
-                elif self.board_num == 2: 
+                        cr.set_source_rgb(0, 0, 1)
+                elif self.board_num == 2:
                     if (i+j) % 2 == 0:
-                        cr.set_source_rgb(0.5, 0, 0)     
-                                
+                        cr.set_source_rgb(0.5, 0, 0)
                     else:
-                        cr.set_source_rgb(1, 1, 1)     
-	                           
-	        
-                    cr.fill_preserve()
-                    cr.stroke() 
-                    
-                elif self.board_num == 3: 
+                        cr.set_source_rgb(1, 1, 1)
+                elif self.board_num == 3:
                     if (i+j) % 2 == 0:
-                        cr.set_source_rgb(1, 1, 1)     
-                                
+                        cr.set_source_rgb(1, 1, 1)
                     else:
-                        cr.set_source_rgb(0, 0.6, 0)     
-	                           
-	        
-                    cr.fill_preserve()
-                    cr.stroke() 
-                    
-                elif self.board_num == 4: 
+                        cr.set_source_rgb(0, 0.6, 0)
+                elif self.board_num == 4:
                     if (i+j) % 2 == 0:
-                        cr.set_source_rgb(1, 1, 1)     
-                                
+                        cr.set_source_rgb(1, 1, 1)
                     else:
-                        cr.set_source_rgb(0, 0.3, 0.5)  
-                    cr.fill_preserve()
-                    cr.stroke()        
-                elif self.board_num == 5: 
+                        cr.set_source_rgb(0, 0.3, 0.5)
+                elif self.board_num == 5:
                     if (i+j) % 2 == 0:
-                        cr.set_source_rgb(1, 1, 1)     
-                                
+                        cr.set_source_rgb(1, 1, 1)
                     else:
-                        cr.set_source_rgb(0.7, 0, 0.5)  
-	        
-                    cr.fill_preserve()
-                    cr.stroke() 
-        square_size = 50
+                        cr.set_source_rgb(0.7, 0, 0.5)
+    
+                cr.fill_preserve()
+                cr.stroke()
+    
         num = 100
         for i in range(10):
             if i % 2 == 0:
                 for j in range(10):
-                    x = j * square_size
-                    y = i * square_size
-                    cr.set_source_rgb(0, 0, 0)  
-                    cr.rectangle(x, y, square_size, square_size)
-                    cr.stroke() 
-                    cr.set_source_rgb(0, 0, 0)  
-                    cr.select_font_face("Arial", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
-                    cr.set_font_size(20)
-                    cr.move_to(x + square_size/2 , y + square_size/2 ) 
-                    cr.show_text(str(num)) 
-                    num -= 1  
-            else:
-                 for j in range(10):
-                    x = (9 - j) * square_size  
-                    y = i * square_size
-                    cr.set_source_rgb(0, 0, 0)  
-                    cr.rectangle(x, y, square_size, square_size)
-                    cr.stroke() 
+                    x = j * self.square_size
+                    y = i * self.square_size
                     cr.set_source_rgb(0, 0, 0)
-                    
+                    cr.rectangle(x, y, self.square_size, self.square_size)
+                    cr.stroke()
+                    cr.set_source_rgb(0, 0, 0)
                     cr.select_font_face("Arial", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
-                    cr.set_font_size(20)
-                    cr.move_to(x + square_size/2 , y + square_size/2 )  
-                    cr.show_text(str(num))  
-                    num -= 1 
+                    cr.set_font_size(20 +self.diff // 3)
+                    cr.move_to(x + self.square_size/2 -6, y + self.square_size/2)
+                    cr.show_text(str(num))
+                    num -= 1
+            else:
+                for j in range(10):
+                    x = (9 - j) * self.square_size
+                    y = i * self.square_size
+                    cr.set_source_rgb(0, 0, 0)
+                    cr.rectangle(x, y, self.square_size, self.square_size)
+                    cr.stroke()
+                    cr.set_source_rgb(0, 0, 0)
+    
+                    cr.select_font_face("Arial", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
+                    cr.set_font_size(20+ self.diff // 3)
+                    cr.move_to(x + self.square_size/2 - 6, y + self.square_size/2)
+                    cr.show_text(str(num))
+                    num -= 1
+    
+       
+    
+
         cr.set_source_rgb(0.6, 0.7, 0.2)
-        cr.set_line_width(5)
+        cr.set_line_width(5+self.diff // 4)
     
         line_sets = [
             
-            [(460, 170), (460, 260)],
-            [(210, 160), (370, 420)],
-            [(205, 369), (260, 480)],
-            [(210, 20), (160, 160)],
-            [(10,360), (60, 210)],
-            [(365, 165), (255, 70)],
-            [(10,120), (115,30)]
+            [(460+(10 * self.diff), 170+(4 *self.diff )), (460+ (10* self.diff) , 260+(6 *self.diff))],
+            [(210+(5 * self.diff), 160+(4 *self.diff)), (370+ (8 * self.diff), 420+( 10 * self.diff))],
+            [(205+(5 * self.diff) , 369+(7 * self.diff)), (260+(6* self.diff) , 480+ (10* self.diff))],
+            [(210+ (5* self.diff), 20+ (1* self.diff)), (160+(4*self.diff), 160+(3* self.diff))],
+            [(10+(1 *self.diff),380+(6 *self.diff)), (60+ (2* self.diff), 210+ (5* self.diff))],
+            [(365+(8 * self.diff), 165+(4 * self.diff)), (255+ (6 * self.diff), 70+(2 *self.diff))],
+            [(10+(1 * self.diff),120+(3 * self.diff)), (115+(3 * self.diff),30+ (1*self.diff))]
             
         ]
     
@@ -249,7 +242,7 @@ class GameBoard(Gtk.Window):
             cr.stroke()
     
             
-            rung_count = 10  
+            rung_count = 10 + self.diff // 4
             rung_height = (line2_end_y - line1_start_y) / (rung_count + 1)
     
             
@@ -266,102 +259,98 @@ class GameBoard(Gtk.Window):
 
        
  
-        
-        
+        radius = 15 +self.diff // 3
+        rad_eye = 2 + self.diff //5 
+        body_width =10 +self.diff //5 
         width = 75
         height = 30
         cr.set_source_rgb(1, 0.0, 0.0)
-        radius = 15
-        center_x = width 
-        center_y = height 
+        #radius = 15
+        center_x =  75+(2*self.diff)
+        center_y = 30+(1*self.diff)
         cr.arc(center_x, center_y, radius, 0, 2 * 3.14)#circle
         cr.fill()
         
-        cr.set_line_width(10)
+        cr.set_line_width(body_width)
         cr.set_source_rgb(1.0, 0.0, 0.0) 
-        cr.move_to(75, 32)  #snakebody
-        cr.curve_to(190,50,100,210,180, 320)  
+        cr.move_to(center_x , center_y)  #snakebody
+        cr.curve_to(190,50,100,210,180+(4 *self.diff), 320+(7*self.diff))
         cr.stroke()
         
-        cr.set_line_width(2)#tongue
-        cr.set_source_rgb(0.0, 0.0, 0.0) 
-        cr.move_to(70, 30)  
-        cr.curve_to(50, 60, 50, 30, 40, 30)  
-        cr.stroke()
         
-        width = 75 #eye1
-        height = 35
+        width = center_x #eye1
+        height = center_y
         cr.set_source_rgb(0.0, 0.0, 0.0)
-        radius = 2
+        #radius = 2
         center_x = width 
         center_y = height 
-        cr.arc(center_x, center_y, radius, 0, 2 * 3.14)
+        cr.arc(center_x, center_y, rad_eye, 0, 2 * 3.14)
         cr.fill()
         
         width = 75 #eye2
         height = 20
         cr.set_source_rgb(0.0, 0.0, 0.0)
-        radius = 2
-        center_x = width 
-        center_y = height 
-        cr.arc(center_x, center_y, radius, 0, 2 * 3.14)
+        #radius = 2
+        center_x = 75 +(2*self.diff)
+        center_y = 20+(1*self.diff)
+        cr.arc(center_x, center_y, rad_eye, 0, 2 * 3.14)
         cr.fill()
         
         cr.set_source_rgb(1, 0.5, 0.0)
-        radius = 15
-        cr.arc(120,370, radius, 0, 2 * 3.14)
+        #radius = 15
+        cr.arc(120 + (3 *self.diff),370 + (8 *self.diff), radius, 0, 2 * 3.14)
         cr.fill()
         
-        cr.set_line_width(10)
+        cr.set_line_width(body_width)
         cr.set_source_rgb(1.0, 0.5, 0.0) 
-        cr.move_to(125, 380)  #snakebody
-        cr.curve_to(180, 450, 150, 450, 220, 480)  
+        cr.move_to(125 + (3 *self.diff), 380 + (8 *self.diff))  #snakebody
+        cr.curve_to(180 + (4 *self.diff), 450 + (10*self.diff),  150 + (4 *self.diff), 450 +(10 *self.diff), 220 + (5 *self.diff), 480 + (10 *self.diff))  
         cr.stroke()
         
         
         cr.set_source_rgb(0.0, 0.0, 0.0)#eyes
-        cr.arc(110,370,2,0, 2 * 3.14)
+        cr.arc(110 + (3 *self.diff),370 +(8 *self.diff),rad_eye,0, 2 * 3.14)
         cr.fill()
-        cr.arc(125,370,2,0, 2 * 3.14)
+        cr.arc(125 + (3 *self.diff),370 + (8 *self.diff),rad_eye,0, 2 * 3.14)
         cr.fill()
         
         cr.set_source_rgb(0.0, 0.5, 0.0)
-        radius = 15
-        cr.arc(420,70, radius, 0, 2 * 3.14)
+        #radius = 15
+        cr.arc(420 + (9 *self.diff),70 + (2 * self.diff), radius, 0, 2 * 3.14)
         cr.fill()
         
-        cr.set_line_width(10)
+        cr.set_line_width(body_width)
         cr.set_source_rgb(0.0, 0.5, 0.0) 
-        cr.move_to(420, 70)  #snakebody
-        cr.curve_to(290,100,300,100,280, 220)  
+        cr.move_to(420 + ( 9 * self.diff), 70 + (2 *self.diff))  #snakebody
+        cr.curve_to(290+ ( 6 * self.diff),100+ ( 2 * self.diff),300+ ( 6 * self.diff),100 + ( 2 * self.diff),280 + ( 6 * self.diff), 220 + ( 5 * self.diff))  
         cr.stroke()
         
         cr.set_source_rgb(0.0, 0.0, 0.0)#eyes
-        cr.arc(430,70,2,0, 2 * 3.14)
+        cr.arc(430+ ( 9 * self.diff),70+ ( 2 * self.diff),rad_eye,0, 2 * 3.14)
         cr.fill()
-        cr.arc(420,70,2,0, 2 * 3.14)
+        cr.arc(420+ ( 9 * self.diff),70+ ( 2* self.diff),rad_eye,0, 2 * 3.14)
         cr.fill()
         
-        cr.move_to(260, 240)#tail
-        cr.line_to(275, 220)
-        cr.line_to(280, 220)
+        cr.move_to(260+ ( 6 * self.diff), 240+ ( 6* self.diff))#tail
+        cr.line_to(275+ ( 6 * self.diff), 220+ ( 6* self.diff))
+        cr.line_to(280+ ( 6 * self.diff), 220+ ( 6 * self.diff))
         cr.close_path()
         cr.set_line_width(3)
         cr.set_source_rgb(0.0, 0.5, 0.0)
         cr.stroke()
         
-        cr.move_to(190, 340)#tail
-        cr.line_to(175, 320)
-        cr.line_to(185, 315)
+        cr.move_to(190+ ( 4 * self.diff), 340+ ( 7 * self.diff))#tail
+        cr.line_to(175+ ( 4 * self.diff), 320+ ( 7 * self.diff))
+        cr.line_to(185+ ( 4 * self.diff), 315+ ( 7 * self.diff))
         cr.close_path()
         cr.set_line_width(3)
         cr.set_source_rgb(1, 0.0, 0.0)
         cr.fill()
         cr.stroke()
         
-        cr.move_to(210, 480)#tail
-        cr.line_to(230, 500)
-        cr.line_to(215, 470)
+        cr.move_to(210+ ( 5 * self.diff), 480+ ( 10 * self.diff))#tail
+        cr.line_to(230+ ( 5 * self.diff), 500+ ( 10 * self.diff))
+        cr.line_to(215+ ( 5 * self.diff), 470+ ( 10 * self.diff))
         cr.close_path()
         cr.set_line_width(3)
         cr.set_source_rgb(1, 0.5, 0.0)
@@ -369,122 +358,104 @@ class GameBoard(Gtk.Window):
         cr.stroke()
         
         
-        width = 420
-        height = 270
+        width = 420+ ( 9 * self.diff)
+        height = 270+ ( 6 * self.diff)
         cr.set_source_rgb(0, 1.0, 1.0)
-        radius = 15
+        #radius = 15
         center_x = width 
         center_y = height 
         cr.arc(center_x, center_y, radius, 0, 2 * 3.14)#circle
         cr.fill()
         
-        cr.set_line_width(10)
+        cr.set_line_width(body_width)
         cr.set_source_rgb(0, 1.0, 1.0) 
-        cr.move_to(420, 270)  #snakebody
-        cr.curve_to(440,288,410,490,440, 420)  
+        cr.move_to(420+ ( 9 * self.diff), 270+ ( 6 * self.diff))  #snakebody
+        cr.curve_to(440+ ( 9 * self.diff),288+ ( 6 * self.diff),410+ ( 9 * self.diff),490+ ( 10 * self.diff),440+ ( 9 * self.diff), 420+ ( 9 * self.diff))  
         cr.stroke()
         cr.set_source_rgb(0.0, 0.0, 0.0)#eyes
-        cr.arc(410,270,2,0, 2 * 3.14)
+        cr.arc(410+ ( 9 * self.diff),270+ ( 6 * self.diff),rad_eye,0, 2 * 3.14)
         cr.fill()
-        cr.arc(425,260,2,0, 2 * 3.14)
+        cr.arc(425+ ( 9 * self.diff),260+ ( 6 * self.diff),rad_eye,0, 2 * 3.14)
         cr.fill()
         
-        width = 270
-        height = 320
+        width = 270+( 6 * self.diff)
+        height = 320+( 7 * self.diff)
         cr.set_source_rgb(1, 1.0, 0)
-        radius = 15
+        #radius = 15
         center_x = width 
         center_y = height 
         cr.arc(center_x, center_y, radius, 0, 2 * 3.14)#circle
         cr.fill()
         
-        cr.set_line_width(10)
+        cr.set_line_width(body_width)
         cr.set_source_rgb(1, 1.0, 0.0) 
-        cr.move_to(270, 320)  #snakebody
-        cr.curve_to(230,340,330,430,340, 470)  
+        cr.move_to(270+( 6 * self.diff), 320+( 7 * self.diff))  #snakebody
+        cr.curve_to(230+ (5 * self.diff),340+( 7 * self.diff),330+( 7 * self.diff),430+( 9 * self.diff),340+( 7 * self.diff), 470+( 10 * self.diff))  
         cr.stroke()
         cr.set_source_rgb(0.0, 0.0, 0.0)#eyes
-        cr.arc(265,320,2,0, 2 * 3.14)
+        cr.arc(265+( 6 * self.diff),320+( 7 * self.diff),rad_eye,0, 2 * 3.14)
         cr.fill()
-        cr.arc(275,320,2,0, 2 * 3.14)
-        cr.fill()
-        
-        width = 420
-        height = 270
-        cr.set_source_rgb(0, 1.0, 1.0)
-        radius = 15
-        center_x = width 
-        center_y = height 
-        cr.arc(center_x, center_y, radius, 0, 2 * 3.14)#circle
+        cr.arc(275+( 6 * self.diff),320+( 7 * self.diff),rad_eye,0, 2 * 3.14)
         cr.fill()
         
-        cr.set_line_width(10)
-        cr.set_source_rgb(0, 1.0, 1.0) 
-        cr.move_to(420, 270)  #snakebody
-        cr.curve_to(440,288,410,490,440, 420)  
-        cr.stroke()
-        cr.set_source_rgb(0.0, 0.0, 0.0)#eyes
-        cr.arc(410,270,2,0, 2 * 3.14)
-        cr.fill()
-        cr.arc(425,260,2,0, 2 * 3.14)
-        cr.fill()
+       
         
         
-        width = 220
-        height = 220
+        width = 220+( 5 * self.diff)
+        height = 220+( 5* self.diff)
         cr.set_source_rgb(0, 0.5, 1.0)
-        radius = 15
+        #radius = 15
         center_x = width 
         center_y = height 
         cr.arc(center_x, center_y, radius, 0, 2 * 3.14)#circle
         cr.fill()
         
-        cr.set_line_width(10)
-        cr.move_to(220, 220)  #snakebody
-        cr.curve_to(410,280,150,340,170, 360)  
+        cr.set_line_width(body_width)
+        cr.move_to(220+( 5 * self.diff), 220+( 5 * self.diff))  #snakebody
+        cr.curve_to(410+( 9 * self.diff),280+( 6 * self.diff),150+( 4 * self.diff),340+( 7 * self.diff),170+( 4 * self.diff), 360+( 8 * self.diff))  
         cr.stroke()
         cr.set_source_rgb(0.0, 0.0, 0.0)#eyes
-        cr.arc(220,210,2,0, 2 * 3.14)
+        cr.arc(220+( 5 * self.diff),210+( 5 * self.diff),rad_eye,0, 2 * 3.14)
         cr.fill()
-        cr.arc(220,225,2,0, 2 * 3.14)
+        cr.arc(220+( 5 * self.diff),225+( 5 * self.diff),rad_eye,0, 2 * 3.14)
         cr.fill()
         
-        width = 70
-        height = 120
+        width = 70+( 2 * self.diff)
+        height = 120+( 3 * self.diff)
         cr.set_source_rgb(0, 1, 0.5)
-        radius = 15
+        radius = 15+self.diff // 3
         center_x = width 
         center_y = height 
         cr.arc(center_x, center_y, radius, 0, 2 * 3.14)#circle
         cr.fill()
         
-        cr.set_line_width(10)
-        cr.move_to(70, 120)  #snakebody
-        cr.curve_to(30,150,110,340,30, 230)  
+        cr.set_line_width(body_width)
+        cr.move_to(70+( 2 * self.diff), 120+( 3 * self.diff))  #snakebody
+        cr.curve_to(30+( 1 * self.diff),150+( 3 * self.diff),110+( 3 * self.diff),340+( 7 * self.diff),30+( 1 * self.diff), 230+( 5 * self.diff))  
         cr.stroke()
         cr.set_source_rgb(0.0, 0.0, 0.0)#eyes
-        cr.arc(70,110,2,0, 2 * 3.14)
+        cr.arc(70+( 2 * self.diff),110+( 3 * self.diff),2 +self.diff // 4,0, 2 * 3.14)
         cr.fill()
-        cr.arc(70,125,2,0, 2 * 3.14)
+        cr.arc(70+( 2 * self.diff),125+( 3 * self.diff),2+ self.diff //4,0, 2 * 3.14)
         cr.fill()
         
-        width = 330
-        height = 30
+        width = 330+( 7 * self.diff) 
+        height = 30+( 1 * self.diff)
         cr.set_source_rgb(0.9, 0.5, 0.5)
-        radius = 15
+        radius = 15 + self.diff // 3
         center_x = width 
         center_y = height 
         cr.arc(center_x, center_y, radius, 0, 2 * 3.14)#circle
         cr.fill()
         
-        cr.set_line_width(10)
-        cr.move_to(335, 40)  #snakebody
-        cr.curve_to(490,90,350,200,430, 230)  
+        cr.set_line_width(10+self.diff // 3)
+        cr.move_to(328+( 8 * self.diff), 30+( 1 * self.diff))  #snakebody
+        cr.curve_to(490+( 10 * self.diff),90+( 1 * self.diff),350+( 8 * self.diff),200+( 5* self.diff),430+( 9 * self.diff), 230+( 5 * self.diff))  
         cr.stroke()
         cr.set_source_rgb(0.0, 0.0, 0.0)#eyes
-        cr.arc(330,20,2,0, 2 * 3.14)
+        cr.arc(330+( 7 * self.diff),20+( 1 * self.diff),2 + self.diff //4 ,0, 2 * 3.14)
         cr.fill()
-        cr.arc(320,30,2,0, 2 * 3.14)
+        cr.arc(320+( 7 * self.diff),30+( 1 * self.diff),2+ self.diff //4,0, 2 * 3.14)
         cr.fill()
         
         
@@ -533,7 +504,7 @@ class GameBoard(Gtk.Window):
             cr.arc(dot_x, dot_y, dot_radius, 0, 2 * math.pi)
             cr.fill()
         cr.set_source_rgb(1, 0, 0)
-        cr.move_to(18,520)
+        cr.move_to(self.square_size * 10+50,50)
         cr.set_font_size(15)
         cr.show_text("Player Name") 
         cr.move_to(130,520)
@@ -542,7 +513,7 @@ class GameBoard(Gtk.Window):
         for player in self.players:
             x, y = self.get_cell_coordinates(player.position[0], player.position[1])
             cr.set_source_rgb(*player.color)
-            cr.arc(x + square_size/2, y + square_size/2, 10, 0, 2 * math.pi)  
+            cr.arc(x + self.square_size/2, y +self.square_size/2, 10, 0, 2 * math.pi)  
             cr.fill()
             
             cr.arc(25 , 515+i, 10, 0, 2 * math.pi)
@@ -564,10 +535,10 @@ class GameBoard(Gtk.Window):
             
          
 	       
-            cr.set_source_rgba(1, 0, 0.5, 0.2)
-            x = player.position[1] * 50
-            y = player.position[0] * 50
-            cr.rectangle(x, y, 50, 50)
+            cr.set_source_rgba(1, 0, 0.5, 1)
+            x = player.position[1] * self.square_size
+            y = player.position[0] * self.square_size
+            cr.rectangle(x, y, self.square_size, self.square_size)
             
             #cr.set_source_rgb(1, 0, 0)  
             #cr.select_font_face("Arial", cairo.FONT_SLANT_ITALIC, cairo.FONT_WEIGHT_BOLD)
@@ -578,17 +549,17 @@ class GameBoard(Gtk.Window):
             cr.fill()
             
         #to mark the current position in gameboard
-        x = self.current_cell[1] * 50
-        y = self.current_cell[0] * 50
-        cr.rectangle(x+5, y+5, 40, 40)
+        x = self.current_cell[1] * self.square_size
+        y = self.current_cell[0] * self.square_size
+        cr.rectangle(x+5, y+5, self.square_size -10, self.square_size -10)
         cr.set_source_rgba(1, 0.2,0.4, 0.6)
         cr.fill()
-        
+        widget.queue_draw()
        
     def get_cell_coordinates(self, row, column):
        
-        x = column * 50
-        y = row * 50
+        x = column *self.square_size
+        y = row *  self.square_size
         return x, y
 
     def roll_dice(self):
@@ -598,11 +569,10 @@ class GameBoard(Gtk.Window):
     
         self.dice_number = random.randint(1, 6)
         self.i=1
-        
+        self.notify("you got a"+str(self.dice_number)+"on the dice")
         player = self.players[self.count % len(self.players)] 
         current_row, current_col = player.position[0], player.position[1]
-        if player.name != "Machine" :
-            self.notify("you got a"+str(self.dice_number)+"on the dice")
+        
         if current_row % 2 != 0:
             new_col = current_col + self.dice_number
             if new_col >= 10:
@@ -907,6 +877,6 @@ class AccessibleStatusbar(Gtk.Frame):
 		self.label.set_line_wrap(val)
 
 if __name__ == "__main__":
-	game_board = GameBoard(1, 2, ["Kevin" , "Lenin"])
+	game_board = GameBoard(1, 2, ["Kevin" , "Lenin" ])
 	game_board.connect("destroy", Gtk.main_quit)
 	Gtk.main()
