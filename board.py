@@ -642,7 +642,7 @@ class GameBoard(Gtk.Window):
             for ladder in self.ladders :
                 if (ladder - number) <= 6 and (ladder - number) > 0:
                     pos = ladder - number
-                    self.notify(" there is a ladder at " + str(ladder) +"it is " +str(pos)+" position away from you")
+                    self.notify(" there is a ladder at " + str(ladder) +" it is " +str(pos)+" position away from you")
             player = self.players[self.count % len(self.players)] 
          
                 
@@ -657,6 +657,16 @@ class GameBoard(Gtk.Window):
                 else: 
                   
                     self.notify(player.name+" can roll dice by pressing spacebar")
+                    
+    def calculate_cell(self,row,col):
+        if(row % 2 != 0) :
+            cell_val = (9 - row) * 10 + col + 1
+            #self.notify_cancel()
+            return cell_val
+        else :
+            cell_val = (9 - row) * 10 +(9 - col) + 1
+            #self.notify_cancel()
+            return cell_val 
             
     def move_player(self, player, number):
         #time.sleep(3)
@@ -785,6 +795,7 @@ class GameBoard(Gtk.Window):
                
     def on_key_press(self, widget, event):
         self.i=1
+        ctrl = (event.state & Gdk.ModifierType.CONTROL_MASK)
         keyval = event.keyval
         if keyval == Gdk.KEY_Left:
             self.move_current_cell(-1, 0)
@@ -797,6 +808,8 @@ class GameBoard(Gtk.Window):
         #check whether player pressed spacebar ,and execute roll_dice method
         elif keyval == Gdk.KEY_space:
             self.roll_dice()
+        elif ctrl and keyval == Gdk.KEY_l :
+            self.speak_player_position()
         self.queue_draw()
         
     def move_current_cell(self, dx, dy):
@@ -826,6 +839,14 @@ class GameBoard(Gtk.Window):
             player = self.players[i] 
             if player.position == [row ,col]:
                 self.notify(player.name +" in  position "+str(num))
+                
+    #to speak the current positions of players by pressing shortcut key            
+    def speak_player_position(self):
+        for j in range(self.num_players):
+            player = self.players[j]
+            pos=self.calculate_cell(player.position[0],player.position[1])
+            self.notify(player.name+" in position "+str(pos))
+                
 
     def notify(self, text):
 	    #self.speech.speak(text)
