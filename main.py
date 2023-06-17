@@ -21,7 +21,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ###########################################################################
-import gi , speechd
+import gi 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk 
 from board import GameBoard
@@ -31,9 +31,7 @@ class SelectPlay(Gtk.Window):
 		Gtk.Window.__init__(self, title="Select Player")
 		self.set_default_size(500, 500)
 		
-		self.speech = speechd.SSIPClient('select_player')
 		
-		self.speech.speak("welcome to snake and ladder game") 
 
 		#We will fix this later 
 		#self.connect("destroy", Gtk.main_quit)
