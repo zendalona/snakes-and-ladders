@@ -69,6 +69,8 @@ class GameBoard(Gtk.Window):
         drawing_area.connect("draw", self.draw_board)
         drawing_area.add_events(Gdk.EventMask.KEY_PRESS_MASK)
         self.connect("key-press-event", self.on_key_press)  
+        self.snakes = [ (23 , 5 ), (35 , 7) , (49 , 12 ), (56 , 24 ), (79 , 60 ), (89 , 55 ), (94 , 52) , (99 , 37)]
+        self.ladders = [ (6,25) , (13,65) , (21,59) ,  (50,70) , (64,96) , (68,86) , (80,98)]
         
         
         
@@ -618,15 +620,15 @@ class GameBoard(Gtk.Window):
             #self.notify_cancel()
             self.notify(player.name+" in position "+str(number))
         
-        self.snakes = [ 23 , 35 , 49 , 56 , 79 , 89 , 94 , 99]
-        self.ladders = [ 6 , 13 , 21 ,  50 , 64 , 68 , 80]
-        if number in self.ladders:
+        snakes = [ 23 , 35 , 49 , 56 , 79 , 89 , 94 , 99]
+        ladders = [ 6 , 13 , 21 ,  50 , 64 , 68 , 80]
+        if number in ladders:
             self.notify("great !! You have found a ladder!")
             
             #time.sleep(0.5)
             self.move_player(player,number) 
 
-        elif number in self.snakes:
+        elif number in snakes:
             
             self.notify("oops !! you are on a snake ")
            
@@ -635,11 +637,11 @@ class GameBoard(Gtk.Window):
             self.move_player(player,number) 
         else :
 			
-            for snake in self.snakes:
+            for snake in snakes:
                 if ( snake - number) <=6 and (snake -number) > 0 :
                     pos = snake -number
                     self.notify("watch out !there is a snake at " + str(snake) +" and it is " +str(pos)+" position away from you")
-            for ladder in self.ladders :
+            for ladder in ladders :
                 if (ladder - number) <= 6 and (ladder - number) > 0:
                     pos = ladder - number
                     self.notify(" there is a ladder at " + str(ladder) +" it is " +str(pos)+" position away from you")
@@ -810,6 +812,8 @@ class GameBoard(Gtk.Window):
             self.roll_dice()
         elif ctrl and keyval == Gdk.KEY_l :
             self.speak_player_position()
+        elif ctrl and  keyval == Gdk.KEY_s :
+            self.speak_board()
         self.queue_draw()
         
     def move_current_cell(self, dx, dy):
@@ -846,7 +850,20 @@ class GameBoard(Gtk.Window):
             player = self.players[j]
             pos=self.calculate_cell(player.position[0],player.position[1])
             self.notify(player.name+" in position "+str(pos))
-                
+    
+    #method to speak the position of snake and ladders on pressing ctrl+s            
+    def speak_board(self):
+        for i in range(100):
+            position_text = ""
+            for start, end in self.snakes:
+                if start == i:
+                    position_text += f" Snake at position  {start} takes you to position {end}. "
+            for start, end in self.ladders:
+                if start == i:
+                    position_text += f" Ladder at position  {start} takes you to osition {end}. "
+            if position_text:
+                self.notify(position_text)
+                        
 
     def notify(self, text):
 	    #self.speech.speak(text)
