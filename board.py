@@ -106,7 +106,7 @@ class GameBoard(Gtk.Window):
         self.cwd = os.getcwd()
         self.player1 = Gst.ElementFactory.make('playbin', 'player1')
         # Playing starting sound
-        play_thread = threading.Thread(target=self.play_file, args=('start.ogg',))
+        play_thread = threading.Thread(target=self.play_file, args=('start.wav',))
         play_thread.start()
 
         time.sleep(1)
@@ -568,7 +568,7 @@ class GameBoard(Gtk.Window):
         
         if self.check_game_over():
             return
-    
+        self.play_file('dice_sound.wav')
         self.dice_number = random.randint(1, 6)
         self.i=1
         self.notify("you got a "+str(self.dice_number)+" on the dice")
