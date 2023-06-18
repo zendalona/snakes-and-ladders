@@ -882,7 +882,7 @@ class GameBoard(Gtk.Window):
                 
     #method to play music            
     def play_file(self, filename):
-        file_path_and_name = 'file:///' + self.cwd + '/sounds/' + filename
+        file_path_and_name = 'file:///usr/share/SnakeAndLadder/sounds/' + filename
         self.player1.set_state(Gst.State.READY)
         self.player1.set_property('uri', file_path_and_name)
         self.player1.set_state(Gst.State.PLAYING)    
