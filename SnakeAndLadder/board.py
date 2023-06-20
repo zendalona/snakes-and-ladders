@@ -121,11 +121,11 @@ class GameBoard(Gtk.Window):
         for i in range(self.num_players):
             player_name = self.players_names[i]
             player_color = colors[i % len(colors)] 
-            player = Player(player_name, [9, 0],player_color)  
+            player = Player(player_name, [9, -1],player_color)  
             self.players.append(player)
         
         if self.num_players == 1:
-            player = Player("Machine", [9, 0], colors[1 % len(colors)])  
+            player = Player("Machine", [9, -1], colors[1 % len(colors)])  
             self.players.append(player)
             self.num_players=2
             self.count =2
@@ -245,7 +245,7 @@ class GameBoard(Gtk.Window):
             cr.stroke()
     
             
-            rung_count = 10 + self.diff // 4
+            rung_count = 10
             rung_height = (line2_end_y - line1_start_y) / (rung_count + 1)
     
             
