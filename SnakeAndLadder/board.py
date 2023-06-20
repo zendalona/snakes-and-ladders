@@ -517,7 +517,7 @@ class GameBoard(Gtk.Window):
         for player in self.players:
             x, y = self.get_cell_coordinates(player.position[0], player.position[1])
             cr.set_source_rgb(*player.color)
-            cr.arc(x + self.square_size/2, y +self.square_size/2, 10, 0, 2 * math.pi)  
+            cr.arc(x + self.square_size/2, y +self.square_size/2, self.square_size // 4, 0, 2 * math.pi)  
             cr.fill()
             
             cr.arc( board_size+board_size // 10 -20,(2 + i) * self.square_size-10 , 10, 0, 2 * math.pi)
