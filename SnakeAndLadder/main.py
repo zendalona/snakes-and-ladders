@@ -88,6 +88,21 @@ class SelectPlay(Gtk.Window):
 		self.player_name_entries_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
 		vbox.pack_start(self.player_name_entries_vbox, False, False, 20)
 		
+		label3 = Gtk.Label()
+		label3.set_text("Choose game mode  :")
+		label3.set_use_underline(True)
+		label3.override_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.0, 0.0, 1.0, 1.0))
+		vbox.pack_start(label3, False, False, 10)
+		
+		game_mode_combo = Gtk.ComboBoxText()
+		game_mode_combo.connect("changed", self.on_game_mode_changed)
+		#adding values to combobox
+		game_mode_combo.append_text("Game mode")
+		game_mode_combo.append_text("Education mode")
+		game_mode_combo.set_active(0)
+		vbox.pack_start(game_mode_combo, False, False, 0)
+		label3.set_mnemonic_widget(game_mode_combo)
+		
 		#creating start button
 		start_button = Gtk.Button(label="Start")
 		#connect the clicked signal to the on_submit_clicked method
@@ -144,6 +159,9 @@ class SelectPlay(Gtk.Window):
 			self.player_name_entries_vbox.remove(entry)
 		self.player_name_entries.clear()
 		
+	def on_game_mode_changed(self,combo):
+		self.mode=combo.get_active()
+		
 	def on_board_selected(self,combo):
 		self.board_num = combo.get_active() + 1
 		
@@ -154,7 +172,7 @@ class SelectPlay(Gtk.Window):
 		self.destroy()
 		#if all player names are provided, a GameBoard instance is created with the count and player names
 		if all(player_names):
-			game_board = GameBoard(self.board_num,self.count, player_names)
+			game_board = GameBoard(self.board_num,self.count, player_names,self.mode)
 			game_board.connect("destroy", Gtk.main_quit)
 			
 	def show_about_dialog(self):

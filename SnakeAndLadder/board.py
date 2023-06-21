@@ -42,9 +42,13 @@ class Player:
         self.position = position
         self.color=color
 class GameBoard(Gtk.Window):
-    def __init__(self,board_num,num_players,players_names):
+    def __init__(self,board_num,num_players,players_names,mode):
         Gtk.Window.__init__(self, title="Game Board")
-        self.add_mode=False
+        if mode ==0:
+            self.add_mode=False
+        else:
+            self.add_mode=True  
+        
         self.count = num_players
         self.i=2
         color_rgb = Gdk.RGBA(1, 1, 1, 1)
