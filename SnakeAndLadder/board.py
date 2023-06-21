@@ -44,14 +44,15 @@ class Player:
 class GameBoard(Gtk.Window):
     def __init__(self,board_num,num_players,players_names):
         Gtk.Window.__init__(self, title="Game Board")
-       
+        self.add_mode=False
         self.count = num_players
         self.i=2
         color_rgb = Gdk.RGBA(1, 1, 1, 1)
         #self.override_background_color(Gtk.StateFlags.NORMAL,color_rgb)
         self.speech = speechd.SSIPClient('game_board')  
         self.dice_number=1
-        
+        self.typed_value =0
+        self.correct_answer=0
        
         self.board_num = board_num
         self.connect("destroy", self.cleanup)
@@ -567,7 +568,8 @@ class GameBoard(Gtk.Window):
         return x, y
 
     def roll_dice(self):
-        
+        self.typed_value = 0
+        self.correct_answer=0
         if self.check_game_over():
             return
         self.play_file('dice_sound.wav')
@@ -575,8 +577,21 @@ class GameBoard(Gtk.Window):
         self.i=1
         self.notify("you got a "+str(self.dice_number)+" on the dice")
         player = self.players[self.count % len(self.players)] 
-        current_row, current_col = player.position[0], player.position[1]
         
+        self.current_row, self.current_col = player.position[0], player.position[1]
+        self.name=player.name
+        if player.name == "Machine" :
+            self.move_pos(self.dice_number)
+        
+        else:
+            if self.add_mode == True:
+                self.calc_position(self.dice_number,player.position[0], player.position[1])
+            else:
+                self.move_pos(self.dice_number)
+                
+    def move_pos(self,dice_number) :  
+        player = self.players[self.count % len(self.players)]
+        current_row, current_col = player.position[0], player.position[1]  
         if current_row % 2 != 0:
             new_col = current_col + self.dice_number
             if new_col >= 10:
@@ -605,7 +620,11 @@ class GameBoard(Gtk.Window):
         time.sleep(1)
         self.speak_number(current_row, new_col,player) 
         
-         
+    def calc_position(self,dice_num,row,col):
+        
+        self.current_pos=self.calculate_cell(row,col)
+        self.correct_answer=str(self.correct_answer)+str( self.current_pos+dice_num)
+        self.notify(str(self.current_pos)+" plus "+str(dice_num)+" equals to ")     
         
             
         
@@ -655,7 +674,7 @@ class GameBoard(Gtk.Window):
                 
             else:
                 if player.name == "Machine":
-                    GLib.timeout_add(8000, self.roll_dice)
+                    GLib.timeout_add(10000, self.roll_dice)
                 else: 
                   
                     self.notify(player.name+" can roll dice by pressing spacebar")
@@ -814,8 +833,31 @@ class GameBoard(Gtk.Window):
             self.speak_player_position()
         elif ctrl and  keyval == Gdk.KEY_s :
             self.speak_board()
-        self.queue_draw()
         
+        elif Gdk.keyval_name(keyval).isdigit():
+            self.typed_value =str(self.typed_value)+ Gdk.keyval_name(keyval)
+            print("ans"+str(self.typed_value) ) 
+            self.check_ans()
+        elif keyval == Gdk.KEY_BackSpace:
+            key_value_str = str(self.typed_value)
+            if len(key_value_str) > 1:
+                self.typed_value = (key_value_str[:-1])
+            #self.check_ans()
+        self.queue_draw()
+    
+    def check_ans(self):
+        time.sleep(2)
+        print("Correct answer:", self.correct_answer)
+    
+        if (self.typed_value) == str(self.correct_answer):
+            #self.notify("your answer "+str(self.typed_value))
+            self.notify("You are correct!")
+            self.move_pos(self.dice_number)
+        else:
+            self.notify("your answer "+str(int(self.typed_value)))
+            self.notify("You are wrong.")
+            self.notify(str(self.current_pos)+" plus "+str(self.dice_number)+" equals to ")
+                
     def move_current_cell(self, dx, dy):
         new_row = self.current_cell[0] + dy
         new_col = self.current_cell[1] + dx
@@ -917,6 +959,6 @@ class AccessibleStatusbar(Gtk.Frame):
 		self.label.set_line_wrap(val)
 
 if __name__ == "__main__":
-	game_board = GameBoard(1, 2, ["Kevin" , "Lenin"])
+	game_board = GameBoard(1, 2, ["Kevin" ,"Lenin"])
 	game_board.connect("destroy", Gtk.main_quit)
 	Gtk.main()
