@@ -833,9 +833,9 @@ class GameBoard(Gtk.Window):
         #check whether player pressed spacebar ,and execute roll_dice method
         elif keyval == Gdk.KEY_space:
             self.roll_dice()
-        elif ctrl and keyval == Gdk.KEY_l :
+        elif  keyval == Gdk.KEY_p :
             self.speak_player_position()
-        elif ctrl and  keyval == Gdk.KEY_s :
+        elif   keyval == Gdk.KEY_a :
             self.speak_board()
         
         elif Gdk.keyval_name(keyval).isdigit():
@@ -963,6 +963,6 @@ class AccessibleStatusbar(Gtk.Frame):
 		self.label.set_line_wrap(val)
 
 if __name__ == "__main__":
-	game_board = GameBoard(1, 2, ["Kevin" ,"Lenin"])
+	game_board = GameBoard(1, 2, ["Kevin" ,"Lenin"],0)
 	game_board.connect("destroy", Gtk.main_quit)
 	Gtk.main()
