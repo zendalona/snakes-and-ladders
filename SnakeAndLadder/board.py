@@ -37,10 +37,11 @@ from gi.repository import Atk
 Gst.init(None)
 
 class Player:
-    def __init__(self, name, position,color):
+    def __init__(self, name, position,color,chance):
         self.name = name
         self.position = position
         self.color=color
+        self.chance=chance
 class GameBoard(Gtk.Window):
     def __init__(self,board_num,num_players,players_names,mode):
         Gtk.Window.__init__(self, title="Game Board")
@@ -126,11 +127,11 @@ class GameBoard(Gtk.Window):
         for i in range(self.num_players):
             player_name = self.players_names[i]
             player_color = colors[i % len(colors)] 
-            player = Player(player_name, [9, -1],player_color)  
+            player = Player(player_name, [9, -1],player_color,1)  
             self.players.append(player)
         
         if self.num_players == 1:
-            player = Player("Machine", [9, -1], colors[1 % len(colors)])  
+            player = Player("Machine", [9, -1], colors[1 % len(colors)],1)  
             self.players.append(player)
             self.num_players=2
             self.count =2
@@ -581,10 +582,8 @@ class GameBoard(Gtk.Window):
         self.dice_number = random.randint(1, 6)
         self.i=1
         self.notify("you got a "+str(self.dice_number)+" on the dice")
-        player = self.players[self.count % len(self.players)] 
         
-        self.current_row, self.current_col = player.position[0], player.position[1]
-        self.name=player.name
+        player = self.players[self.count % len(self.players)] 
         if player.name == "Machine" :
             self.move_pos(self.dice_number)
         
@@ -620,7 +619,7 @@ class GameBoard(Gtk.Window):
             self.notify("the number is larger than the number you were hoping to win")
             
         player.position[0],player.position[1] = [current_row, new_col]
-        self.count += 1 
+        
         self.queue_draw() 
         time.sleep(1)
         self.speak_number(current_row, new_col,player) 
@@ -634,6 +633,8 @@ class GameBoard(Gtk.Window):
             
         
     def speak_number(self, row, col,player):
+         
+        
          
         if(row % 2 != 0) :
             number = (9 - row) * 10 + col + 1
@@ -651,7 +652,7 @@ class GameBoard(Gtk.Window):
             
             #time.sleep(0.5)
             self.move_player(player,number) 
-
+    
         elif number in snakes:
             
             self.notify("oops !! you are on a snake ")
@@ -660,7 +661,7 @@ class GameBoard(Gtk.Window):
             #time.sleep(0.5)
             self.move_player(player,number) 
         else :
-			
+            
             for snake in snakes:
                 if ( snake - number) <=6 and (snake -number) > 0 :
                     pos = snake -number
@@ -669,7 +670,7 @@ class GameBoard(Gtk.Window):
                 if (ladder - number) <= 6 and (ladder - number) > 0:
                     pos = ladder - number
                     self.notify(" there is a ladder at " + str(ladder) +" it is " +str(pos)+" position away from you")
-            player = self.players[self.count % len(self.players)] 
+            
          
                 
             if self.check_game_over():
@@ -677,13 +678,24 @@ class GameBoard(Gtk.Window):
                 self.play_file('got_promotion.ogg')
                 self.notify("Congratulations, " + winner.name + " has won the game!")
                 
+            elif self.dice_number == 6:
+                if player.name == "Machine":
+                    self.notify(str(player.name)+"got another chance to roll dice") 
+                    GLib.timeout_add(9000, self.roll_dice)
+                else:
+                    self.notify(player.name+" got another chance to roll dice")
+                    self.notify("roll dice by pressing space bar")
+                
+                
             else:
+                self.count += 1
+                player = self.players[self.count % len(self.players)] 
                 if player.name == "Machine":
                     GLib.timeout_add(10000, self.roll_dice)
                 else: 
                   
                     self.notify(player.name+" can roll dice by pressing spacebar")
-                    
+                        
     def calculate_cell(self,row,col):
         if(row % 2 != 0) :
             cell_val = (9 - row) * 10 + col + 1
@@ -970,6 +982,6 @@ class AccessibleStatusbar(Gtk.Frame):
 		self.label.set_line_wrap(val)
 
 if __name__ == "__main__":
-	game_board = GameBoard(1, 2, ["Kevin" ,"Lenin"],1)
+	game_board = GameBoard(1,2,["Kevin","Lenin" ],1)
 	game_board.connect("destroy", Gtk.main_quit)
 	Gtk.main()
