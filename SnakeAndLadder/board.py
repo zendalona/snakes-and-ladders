@@ -574,6 +574,7 @@ class GameBoard(Gtk.Window):
     def roll_dice(self):
         self.typed_value = 0
         self.correct_answer=0
+        self.wrong_count = 1
         if self.check_game_over():
             return
         self.play_file('dice_sound.wav')
@@ -858,9 +859,15 @@ class GameBoard(Gtk.Window):
             self.notify("You are correct!")
             self.move_pos(self.dice_number)
         else:
-            self.notify("your answer "+str(int(self.typed_value)))
-            self.notify("You are wrong.")
-            self.notify(str(self.current_pos)+" plus "+str(self.dice_number)+" equals to ")
+            if self.wrong_count == 3:
+                self.notify("you are wrong")
+                self.notify("the correct position is "+str(int(self.correct_answer)));
+                self.move_pos(self.dice_number)
+            else:
+                self.notify("your answer "+str(int(self.typed_value)))
+                self.notify("You are wrong.")
+                self.notify(str(self.current_pos)+" plus "+str(self.dice_number)+" equals to ")
+                self.wrong_count+=1
                 
     def move_current_cell(self, dx, dy):
         new_row = self.current_cell[0] + dy
@@ -963,6 +970,6 @@ class AccessibleStatusbar(Gtk.Frame):
 		self.label.set_line_wrap(val)
 
 if __name__ == "__main__":
-	game_board = GameBoard(1, 2, ["Kevin" ,"Lenin"],0)
+	game_board = GameBoard(1, 2, ["Kevin" ,"Lenin"],1)
 	game_board.connect("destroy", Gtk.main_quit)
 	Gtk.main()
