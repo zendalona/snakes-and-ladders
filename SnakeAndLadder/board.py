@@ -458,7 +458,7 @@ class GameBoard(Gtk.Window):
         cr.fill()
         
         cr.set_line_width(10+self.diff // 3)
-        cr.move_to(328+( 8 * self.diff), 30+( 1 * self.diff))  #snakebody
+        cr.move_to(328+( 7 * self.diff), 30+( 1 * self.diff))  #snakebody
         cr.curve_to(490+( 10 * self.diff),90+( 1 * self.diff),350+( 8 * self.diff),200+( 5* self.diff),430+( 9 * self.diff), 230+( 5 * self.diff))  
         cr.stroke()
         cr.set_source_rgb(0.0, 0.0, 0.0)#eyes
