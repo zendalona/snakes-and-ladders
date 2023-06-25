@@ -584,13 +584,13 @@ class GameBoard(Gtk.Window):
         self.notify("you got a "+str(self.dice_number)+" on the dice")
         player = self.players[self.count % len(self.players)] 
         if player.chance == 1 :
-            if self.dice_number != 1 :
-                self.notify(str(player.name)+" , you need a one , to get start ")
+            if self.dice_number != 1 and self.dice_number != 6 :
+                self.notify(str(player.name)+" , you need a one or six , to get start ")
                 self.count += 1
                 player = self.players[self.count % len(self.players)]
                 
                 if player.name == "Machine":
-                    GLib.timeout_add(5000, self.roll_dice)
+                    GLib.timeout_add(6000, self.roll_dice)
                 else:
                     self.notify(player.name+" can roll dice by pressing space bar")
             
