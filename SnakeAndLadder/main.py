@@ -22,6 +22,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ###########################################################################
 import gi 
+import webbrowser
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk 
 from SnakeAndLadder.board import GameBoard
@@ -30,7 +31,7 @@ class SelectPlay(Gtk.Window):
 	def __init__(self):
 		Gtk.Window.__init__(self, title="Select Player")
 		self.set_default_size(500, 500)
-		
+		self.user_guide_file_path="https://www.google.com/"
 		
 
 		#We will fix this later 
@@ -109,7 +110,7 @@ class SelectPlay(Gtk.Window):
 
 		#creating entry for adding player names
 		self.player_name_entries_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
-		hbox5.pack_start(self.player_name_entries_vbox, False, False, 150)
+		hbox5.pack_start(self.player_name_entries_vbox, False, False, 170)
 		vbox.add(hbox5)
 		
 		
@@ -128,16 +129,17 @@ class SelectPlay(Gtk.Window):
 		about_button.set_size_request(20, 30)
 		
 		#creating help button
-		help_button=Gtk.Button(label="Help")
-		help_button.set_size_request(20, 30) 
+		user_button=Gtk.Button(label="User-Guide")
+		user_button.connect("clicked",self.on_user_clicked)
+		user_button.set_size_request(20, 30)
 		
-		submit_vbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=50)
+		submit_vbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
 		submit_vbox.pack_start(about_button, False, False, 100)
-		submit_vbox.pack_start(help_button, False, False, 0)
+		submit_vbox.pack_start(user_button, False, False, 0)
 		vbox.pack_start(submit_vbox, False, False, 80)
 		
 
-		vbox.pack_start(submit_vbox, False, False, 0)  
+		 
 		#empty list is created to hold player names
 		self.player_name_entries = []
 		self.set_resizable(False)
@@ -185,6 +187,12 @@ class SelectPlay(Gtk.Window):
 			game_board = GameBoard(self.board_num,self.count, player_names,self.mode)
 			game_board.connect("destroy", Gtk.main_quit)
 			
+	def on_user_clicked(self,widget,data=None):
+		url = self.user_guide_file_path
+		try:
+			webbrowser.get("firefox").open(url, new=2)
+		except webbrowser.Error:
+			webbrowser.open(url, new=2)
 	def show_about_dialog(self):
 		about_dialog = Gtk.AboutDialog()
 
