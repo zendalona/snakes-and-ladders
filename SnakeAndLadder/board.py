@@ -706,7 +706,11 @@ class GameBoard(Gtk.Window):
                 
             if self.check_game_over():
                 winner = self.get_winner()
-                self.play_file('got_promotion.ogg')
+                file_names = ["win1.mp3", "win3.mp3","got_promotion.ogg"]
+
+            # Randomly select a file name
+                selected_file = random.choice(file_names)
+                self.play_file(selected_file)
                 self.notify("Congratulations, " + winner.name + " has won the game!")
                 
             elif self.dice_number == 6:
@@ -899,17 +903,24 @@ class GameBoard(Gtk.Window):
     
         if (self.typed_value) == str(self.correct_answer):
             #self.notify("your answer "+str(self.typed_value))
+            file_names = ["correct1.wav", "correct2.mp3"]
+
+            # Randomly select a file name
+            selected_file = random.choice(file_names)
+            self.play_file(selected_file)
             self.notify("You are correct!")
             
             self.move_pos(self.dice_number)
         else:
             if self.wrong_count == 3:
                 self.notify("you are wrong")
+                self.play_file('error.aiff')
                 self.notify("the correct position is "+str(int(self.correct_answer)));
                 self.move_pos(self.dice_number)
             else:
                 self.notify("your answer "+str(int(self.typed_value)))
                 self.notify("You are wrong.")
+                self.play_file('error.aiff')
                 self.notify(str(self.current_pos)+" plus "+str(self.dice_number)+" equals to ")
                 self.wrong_count+=1
                 
@@ -1014,6 +1025,6 @@ class AccessibleStatusbar(Gtk.Frame):
 		self.label.set_line_wrap(val)
 
 if __name__ == "__main__":
-	game_board = GameBoard(1,1,["Kevin","Lenin" ],0)
+	game_board = GameBoard(1,2,["Kevin","Lenin" ],1)
 	game_board.connect("destroy", Gtk.main_quit)
 	Gtk.main()
