@@ -621,39 +621,7 @@ class GameBoard(Gtk.Window):
                 else:
                     self.move_pos(self.dice_number)
                     
-    def move_pos(self,dice_number) :  
-        player = self.players[self.count % len(self.players)]
-        current_row, current_col = player.position[0], player.position[1]  
-        if current_row % 2 != 0:
-            new_col = current_col + self.dice_number
-            if new_col >= 10:
-                new_col = 9
-                count= self.dice_number- (10 - current_col)
-                current_row -= 1
-                new_col = new_col - count
-                
-        elif current_row % 2 == 0:
-            new_col = current_col - self.dice_number
-            if new_col < 0:
-                count = new_col  
-                new_col = 0
-                current_row -= 1
-                new_col -= count + 1
-                
-        if current_row < 0 :
-            current_row =0
-            new_col=current_col
-            self.notify_cancel()
-            self.notify("the number is larger than the number you were hoping to win")
-            
-        player.position[0],player.position[1] = [current_row, new_col]
-        if self.dice_number != 6:
-            self.count += 1 
-        self.queue_draw() 
-        time.sleep(1)
-        self.speak_number(current_row, new_col,player) 
-        
-                
+   
     def move_pos(self,dice_number) :  
         player = self.players[self.count % len(self.players)]
         current_row, current_col = player.position[0], player.position[1]  
@@ -684,6 +652,8 @@ class GameBoard(Gtk.Window):
         self.queue_draw() 
         time.sleep(1)
         self.speak_number(current_row, new_col,player) 
+                
+
         
     def calc_position(self,dice_num,row,col):
         
@@ -930,6 +900,7 @@ class GameBoard(Gtk.Window):
         if (self.typed_value) == str(self.correct_answer):
             #self.notify("your answer "+str(self.typed_value))
             self.notify("You are correct!")
+            
             self.move_pos(self.dice_number)
         else:
             if self.wrong_count == 3:
@@ -1043,6 +1014,6 @@ class AccessibleStatusbar(Gtk.Frame):
 		self.label.set_line_wrap(val)
 
 if __name__ == "__main__":
-	game_board = GameBoard(1,2,["Kevin","Lenin" ],0)
+	game_board = GameBoard(1,1,["Kevin","Lenin" ],0)
 	game_board.connect("destroy", Gtk.main_quit)
 	Gtk.main()
