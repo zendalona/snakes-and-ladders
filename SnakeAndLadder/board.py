@@ -889,16 +889,18 @@ class GameBoard(Gtk.Window):
         elif Gdk.keyval_name(keyval).isdigit():
             self.typed_value =str(self.typed_value)+ Gdk.keyval_name(keyval)
             print("ans"+str(self.typed_value) ) 
-            self.check_ans()
+            #self.check_ans()
         elif keyval == Gdk.KEY_BackSpace:
             key_value_str = str(self.typed_value)
             if len(key_value_str) > 1:
                 self.typed_value = (key_value_str[:-1])
             #self.check_ans()
+        elif keyval == Gdk.KEY_Return:
+            self.check_ans()
         self.queue_draw()
     
     def check_ans(self):
-        time.sleep(2)
+        
         print("Correct answer:", self.correct_answer)
     
         if (self.typed_value) == str(self.correct_answer):
@@ -923,7 +925,7 @@ class GameBoard(Gtk.Window):
                 self.play_file('error.aiff')
                 self.notify(str(self.current_pos)+" plus "+str(self.dice_number)+" equals to ")
                 self.wrong_count+=1
-                
+                self.typed_value=0
     def move_current_cell(self, dx, dy):
         new_row = self.current_cell[0] + dy
         new_col = self.current_cell[1] + dx
