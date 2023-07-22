@@ -112,12 +112,13 @@ class GameBoard(Gtk.Window):
        
         self.create_players()
         self.cwd = os.getcwd()
+        self.data_directory = "usr/share/SnakeAndLadder"
         self.player1 = Gst.ElementFactory.make('playbin', 'player1')
         # Playing starting sound
-        play_thread = threading.Thread(target=self.play_file, args=('start.wav',))
-        play_thread.start()
-
+        self.play_file('start')
         time.sleep(1)
+
+        
         
         self.notify(self.players_names[0]+" can roll dice by pressing the space bar")
    
@@ -578,7 +579,7 @@ class GameBoard(Gtk.Window):
         self.wrong_count = 1
         if self.check_game_over():
             return
-        self.play_file('dice_sound.wav')
+        self.play_file("dice_sound")
         self.dice_number = random.randint(1, 6)
         self.i=1
         self.notify("you got a "+str(self.dice_number)+" on the dice")
@@ -706,11 +707,11 @@ class GameBoard(Gtk.Window):
                 
             if self.check_game_over():
                 winner = self.get_winner()
-                file_names = ["win1.mp3", "win3.mp3","got_promotion.ogg"]
+                
 
             # Randomly select a file name
-                selected_file = random.choice(file_names)
-                self.play_file(selected_file)
+                
+                self.play_file("got_promotion")
                 self.notify("Congratulations, " + winner.name + " has won the game!")
                 
             elif self.dice_number == 6:
@@ -761,7 +762,7 @@ class GameBoard(Gtk.Window):
     def climb_up(self, player, end_pos):
         start_pos = player.position
         time.sleep(3)
-        self.play_file('next_level_6.ogg')
+        self.play_file("climb",3)
         col = player.position[1]
         for row in range(start_pos[0], end_pos[0], -1):
             if col < end_pos[1] :
@@ -818,7 +819,7 @@ class GameBoard(Gtk.Window):
                 Gdk.threads_leave()
                 
                 
-            self.play_file('wrong_pressed.ogg')
+            self.play_file("fall",3)
             # Delay between each step
             time.sleep(0.2)
     
@@ -904,25 +905,20 @@ class GameBoard(Gtk.Window):
         print("Correct answer:", self.correct_answer)
     
         if (self.typed_value) == str(self.correct_answer):
-            #self.notify("your answer "+str(self.typed_value))
-            file_names = ["correct1.wav", "correct2.mp3"]
-
-            # Randomly select a file name
-            selected_file = random.choice(file_names)
-            self.play_file(selected_file)
+            self.play_file("correct",2)
             self.notify("You are correct!")
             
             self.move_pos(self.dice_number)
         else:
             if self.wrong_count == 3:
                 self.notify("you are wrong")
-                self.play_file('error.aiff')
+                self.play_file("wrong-anwser",3)
                 self.notify("the correct position is "+str(int(self.correct_answer)));
                 self.move_pos(self.dice_number)
             else:
                 self.notify("your answer "+str(int(self.typed_value)))
                 self.notify("You are wrong.")
-                self.play_file('error.aiff')
+                self.play_file("wrong-anwser",3)
                 self.notify(str(self.current_pos)+" plus "+str(self.dice_number)+" equals to ")
                 self.wrong_count+=1
                 self.typed_value=0
@@ -991,11 +987,19 @@ class GameBoard(Gtk.Window):
 
                 
     #method to play music            
-    def play_file(self, filename):
-        file_path_and_name = 'file:///usr/share/SnakeAndLadder/sounds/' + filename
+    def play_file(self, name, rand_range=1):
+        print("Playing file " + name + " rand ="+str(rand_range));
+        if(rand_range == 1):
+            file_path_and_name = 'file:///'+self.data_directory+'/sounds/'+name+".wav";
+        else:
+            value = str(random.randint(1, rand_range))
+           
+            file_path_and_name = 'file:///'+self.data_directory+'/sounds/'+name+"-"+value+".ogg";
+            print( file_path_and_name);
         self.player1.set_state(Gst.State.READY)
-        self.player1.set_property('uri', file_path_and_name)
-        self.player1.set_state(Gst.State.PLAYING)    
+        self.player1.set_property('uri',file_path_and_name)
+        self.player1.set_state(Gst.State.PLAYING)
+          
 
 class AccessibleStatusbar(Gtk.Frame):
 	def __init__(self):
