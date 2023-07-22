@@ -711,7 +711,7 @@ class GameBoard(Gtk.Window):
 
             # Randomly select a file name
                 
-                self.play_file("got_promotion")
+                self.play_file("win")
                 self.notify("Congratulations, " + winner.name + " has won the game!")
                 
             elif self.dice_number == 6:
