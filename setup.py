@@ -26,7 +26,7 @@ setup(name='SnakeAndLadder',
       license = 'GPL-3',
       packages=['SnakeAndLadder'],
       data_files=[('share/SnakeAndLadder/',['data/icon.png' ]),
-      ('share/SnakeAndLadder/sounds/',['data/sounds/dice_sound.wav', 'data/sounds/win.wav', ' data/sounds/climb-1.ogg' ,'data/sounds/climb-2.ogg', 'data/sounds/climb-3.ogg','data/sounds/fall-1.ogg','data/sounds/fall-2.ogg','data/sounds/fall-3.ogg','data/sounds/correct-1.ogg','data/sounds/correct-2.ogg', 'data/sounds/start.wav' ,'data/sounds/wrong-anwser-1.ogg','data/sounds/wrong-anwser-2.ogg','data/sounds/wrong-anwser-3.ogg' ]),
+      ('share/SnakeAndLadder/sounds/',['data/sounds/dice_sound.ogg', 'data/sounds/win.ogg', ' data/sounds/climb-1.ogg' ,'data/sounds/climb-2.ogg', 'data/sounds/climb-3.ogg','data/sounds/fall-1.ogg','data/sounds/fall-2.ogg','data/sounds/fall-3.ogg','data/sounds/correct-1.ogg','data/sounds/correct-2.ogg', 'data/sounds/start.ogg' ,'data/sounds/wrong-anwser-1.ogg','data/sounds/wrong-anwser-2.ogg','data/sounds/wrong-anwser-3.ogg' ]),
       ('share/applications/',['snake-and-ladder.desktop']),
       ('bin/',['snake-and-ladder'])]
       )

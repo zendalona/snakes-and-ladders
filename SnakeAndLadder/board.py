@@ -115,7 +115,7 @@ class GameBoard(Gtk.Window):
         self.data_directory = "usr/share/SnakeAndLadder"
         self.player1 = Gst.ElementFactory.make('playbin', 'player1')
         # Playing starting sound
-        self.play_file('start')
+        self.play_file("start")
         time.sleep(1)
 
         
@@ -579,7 +579,7 @@ class GameBoard(Gtk.Window):
         self.wrong_count = 1
         if self.check_game_over():
             return
-        self.play_file("dice_sound")
+        self.play_file('dice_sound')
         self.dice_number = random.randint(1, 6)
         self.i=1
         self.notify("you got a "+str(self.dice_number)+" on the dice")
@@ -990,7 +990,7 @@ class GameBoard(Gtk.Window):
     def play_file(self, name, rand_range=1):
         print("Playing file " + name + " rand ="+str(rand_range));
         if(rand_range == 1):
-            file_path_and_name = 'file:///'+self.data_directory+'/sounds/'+name+".wav";
+            file_path_and_name = 'file:///'+self.data_directory+'/sounds/'+name+".ogg";
         else:
             value = str(random.randint(1, rand_range))
            
