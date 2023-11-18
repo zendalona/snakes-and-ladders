@@ -50,24 +50,28 @@ class Board:
            
             self.ladder_coordinates = [ [ (6,25)] ,[(13,65)] , [(21,59)] ,  [(50,70)] , [(64,96)] , [(68,86)] , [(80,98)]]
             self.board_color=[[(1,1,1),(0,0,1)]]
-            self.snake_heads = [ [(23 , 5 ),(1,0,0)], [(35 , 7),(0,1,1)] , [(49 , 12 ),(1,1,0)], [(56 , 24 ),(0,0.5,1)], [(79 , 60 ),(0,1,0.5)], [(89 , 55 ),(0.9,0.5,0.5)], [(94 , 52),(1,0,0)] , [(99 , 37),(1,0.5,0)]]
+            self.snake_heads = [ [(23 , 5 ),(1,0,0)], [(35 , 7),(0,1,1)] , [(49 , 12 ),(1,1,0)], [(56 , 24 ),(0,0.5,1)],
+								[(79 , 60 ),(0,1,0.5)], [(89 , 55 ),(0.9,0.5,0.5)], [(94 , 52),(1,0,0)] , [(99 , 37),(1,0.5,0)]]
              
             
         if board_num==2:
             
             self.ladder_coordinates = [ [(8,28)] , [(17,57)] , [(22,59)] ,  [(50,70)] , [(65,96)] , [(53,88)] , [(78,98)]]
             self.board_color=[[(1,1,1),(0.3,0.5,0)]]
-            self.snake_heads = [ [(38 , 4 ),(1,1,0.3)], [(34, 5),(1,0.5,0.6)] , [(48 , 12 ),(1,1,0)], [(56 , 24 ),(0,1,1)], [(79 , 60 ),(0,0.5,1)], [(87 , 55 ),(1,0,0)], [(94 , 52),(0.9,0.5,0.5)] , [(97 , 37),(0,1,0.6)]]
+            self.snake_heads = [ [(38 , 4 ),(1,1,0.3)], [(34, 5),(1,0.5,0.6)] , [(48 , 12 ),(1,1,0)], [(56 , 24 ),(0,1,1)], 
+								[(79 , 60 ),(0,0.5,1)], [(87 , 55 ),(1,0,0)], [(94 , 52),(0.9,0.5,0.5)] , [(97 , 37),(0,1,0.6)]]
            
         if board_num==3:
              self.ladder_coordinates = [ [(19,37)] , [(11,47)] , [(43,75)] ,  [(52,74)] , [(71,93)] , [(80,99)] , [(32,70)]]
              self.board_color=[[(1,1,1),(1,0,1)]]
-             self.snake_heads=[ [(13,5),(1,0.5,0.6)],[(25,7),(0,1,0.3)],[(57,2),(0,1,1)],[(54,36),(0.4,0.8,0.3)],[(78,40),(0.6,0,0.6)],[(84,55),(0.7,0,0.3)],[(96,73),(0.4,0.8,0.6)],[(90,48),(0.4,0.8,0)]]
+             self.snake_heads=[ [(13,5),(1,0.5,0.6)],[(25,7),(0,1,0.3)],[(57,2),(0,1,1)],[(54,36),(0.4,0.8,0.3)],[(78,40),(0.6,0,0.6)],
+								[(84,55),(0.7,0,0.3)],[(96,73),(0.4,0.8,0.6)],[(90,48),(0.4,0.8,0)]]
              
         if board_num==4:
              self.ladder_coordinates = [ [(4,24)] , [(10,50)] , [(52,92)] ,  [(38,63)] , [(47,87)] , [(55,95)] , [(59,99)]]
              self.board_color=[[(1,1,1),(0.5,0.5,0.4)]]
-             self.snake_heads=[ [(26,5),(1,0.5,0.6)],[(30,7),(0,1,0.3)],[(42,18),(0.5,1,0.3)],[(54,35),(0,1,1)],[(49,28),(0.4,0.8,0.3)],[(81,62),(0.6,0,0.6)],[(86,73),(0.7,0,0.3)],[(85,64),(0.4,0.8,0.6)]]
+             self.snake_heads=[ [(26,5),(1,0.5,0.6)],[(30,7),(0,1,0.3)],[(42,18),(0.5,1,0.3)],[(54,35),(0,1,1)],[(49,28),(0.4,0.8,0.3)],
+								[(81,62),(0.6,0,0.6)],[(86,73),(0.7,0,0.3)],[(85,64),(0.4,0.8,0.6)]]
             
 class GameBoard(Gtk.Window):
     def __init__(self,board_num,num_players,players_names,mode):
@@ -80,7 +84,7 @@ class GameBoard(Gtk.Window):
         self.count = num_players
         self.i=2
         color_rgb = Gdk.RGBA(1, 1, 1, 1)
-        #self.override_background_color(Gtk.StateFlags.NORMAL,color_rgb)
+        
         self.speech = speechd.SSIPClient('game_board')  
         self.dice_number=1
         self.typed_value =0
@@ -100,8 +104,7 @@ class GameBoard(Gtk.Window):
         drawing_area.connect("draw", self.draw_board)
         drawing_area.add_events(Gdk.EventMask.KEY_PRESS_MASK)
         self.connect("key-press-event", self.on_key_press)  
-        self.snakes = [ (23 , 5 ), (35 , 7) , (49 , 12 ), (56 , 24 ), (79 , 60 ), (89 , 55 ), (94 , 52) , (99 , 37)]
-        self.ladders = [ [ (6,25)] ,[(13,65)] , [(21,59)] ,  [(50,70)] , [(64,96)] , [(68,86)] , [(80,98)]]
+        
         
         self.current_cell= [9, 0]
        
@@ -126,9 +129,6 @@ class GameBoard(Gtk.Window):
         # Playing starting sound
         self.play_file("start")
         time.sleep(1)
-
-        
-        
         self.notify(self.players_names[0]+" can roll dice by pressing the space bar")
    
     def create_players(self):
@@ -149,10 +149,7 @@ class GameBoard(Gtk.Window):
     def draw_board(self, widget, cr):
         self.window_width = widget.get_allocated_width() - 300
         self.window_height = widget.get_allocated_height()
-        #print("width="+str(self.window_width))
-        #print("height="+str(self.window_height))
-       
-        
+      
         # Calculate the size of each square based on the window dimensions
         self.square_size = min(self.window_width // 10, self.window_height  // 10)
         self.diff = self.square_size - 50
@@ -162,7 +159,6 @@ class GameBoard(Gtk.Window):
         cr.paint()
     
         cr.set_source_rgb(0, 0, 0)
-    
         for i in range(10):
             for j in range(10):
                 cr.rectangle(i * self.square_size, j * self.square_size, self.square_size, self.square_size)
@@ -363,11 +359,7 @@ class GameBoard(Gtk.Window):
             y = player.position[0] * self.square_size
             cr.rectangle(x, y, self.square_size, self.square_size)
             
-            #cr.set_source_rgb(1, 0, 0)  
-            #cr.select_font_face("Arial", cairo.FONT_SLANT_ITALIC, cairo.FONT_WEIGHT_BOLD)
-            #cr.set_font_size(18)
-            #cr.move_to(x + square_size /2 - 8, y + square_size/2 + 8) 
-            #cr.show_text(player.name) 
+            
             cr.set_source_rgba(1, 1, 0, 0.3)
             cr.fill()
             
@@ -385,6 +377,7 @@ class GameBoard(Gtk.Window):
         y = row * self.square_size
         return x, y
         
+    #method to get the value of x and y coordinate of a cell   
     def cell_values(self,x):
        
         row=9-(x//10)
@@ -451,7 +444,7 @@ class GameBoard(Gtk.Window):
                 else:
                     self.move_pos(self.dice_number)
                     
-   
+    
     def move_pos(self,dice_number) :  
         player = self.players[self.count % len(self.players)]
         current_row, current_col = player.position[0], player.position[1]  
@@ -499,11 +492,11 @@ class GameBoard(Gtk.Window):
          
         if(row % 2 != 0) :
             number = (9 - row) * 10 + col + 1
-            #self.notify_cancel()
+            
             self.notify(player.name+" in position "+str(number))
         else :
             number = (9 - row) * 10 +(9 - col) + 1
-            #self.notify_cancel()
+            
             self.notify(player.name+" in position "+str(number))
         
        
@@ -516,8 +509,7 @@ class GameBoard(Gtk.Window):
             if number == l:
                 n1=l
                 self.notify("great !! You have found a ladder!")
-            
-                #time.sleep(0.5)
+           
                 self.move_player(player,number,end) 
     
         for snake in self.Board.snake_heads:
@@ -527,9 +519,6 @@ class GameBoard(Gtk.Window):
             if number == s:
                 n2=s
                 self.notify("oops !! you are on a snake ")
-           
-           
-                #time.sleep(0.5)
                 self.move_player(player,number,end)
         if(number !=n1 and number !=n2):
             
@@ -578,16 +567,13 @@ class GameBoard(Gtk.Window):
     def calculate_cell(self,row,col):
         if(row % 2 != 0) :
             cell_val = (9 - row) * 10 + col + 1
-            #self.notify_cancel()
             return cell_val
         else :
             cell_val = (9 - row) * 10 +(9 - col) + 1
-            #self.notify_cancel()
+         
             return cell_val 
             
     def move_player(self, player, number,end):
-        #time.sleep(3)
-        
         
         end_pos = self.cell_values(end)
         if end_pos[0] < player.position[0]:
@@ -710,12 +696,12 @@ class GameBoard(Gtk.Window):
         elif Gdk.keyval_name(keyval).isdigit():
             self.typed_value =str(self.typed_value)+ Gdk.keyval_name(keyval)
             print("ans"+str(self.typed_value) ) 
-            #self.check_ans()
+            
         elif keyval == Gdk.KEY_BackSpace:
             key_value_str = str(self.typed_value)
             if len(key_value_str) > 1:
                 self.typed_value = (key_value_str[:-1])
-            #self.check_ans()
+            
         elif keyval == Gdk.KEY_Return:
             self.check_ans()
         self.queue_draw()
@@ -799,23 +785,20 @@ class GameBoard(Gtk.Window):
                         
 
     def notify(self, text):
-	    #self.speech.speak(text)
-	    
-	    
+	   
 	    thread2 = threading.Thread(target=self.status_bar.set_text, args=(text, self.i))
-	    print("Notification: " + text)
 	    thread2.start()
 	    self.i=self.i+1
-	    #self.status_bar.set_text(text)
+	   
 
     def notify_cancel(self):
 	    self.speech.cancel()
-	    #self.status_bar.set_text("")
+	   
 
                 
     #method to play music            
     def play_file(self, name, rand_range=1):
-        print("Playing file " + name + " rand ="+str(rand_range));
+       
         if(rand_range == 1):
             file_path_and_name = 'file:///'+self.data_directory+'/sounds/'+name+".ogg";
         else:
@@ -844,7 +827,7 @@ class AccessibleStatusbar(Gtk.Frame):
 		
 
 	def set_text(self,text,delay):
-		print("delay"+str(delay))
+		
 		time.sleep(delay)
 		self.label.set_text(text)
 		child = self.get_children()[0]
