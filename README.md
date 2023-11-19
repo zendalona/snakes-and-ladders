@@ -52,7 +52,7 @@ Before running the Accessible Snakes-And-Ladders, make sure you have the followi
 
 3. To install:
     ```bash
-     Python3 setup.py install --install-data=/usr
+     python3 setup.py install --install-data=/usr
     ```
 
 
