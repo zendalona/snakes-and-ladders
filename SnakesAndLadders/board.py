@@ -100,7 +100,7 @@ class GameBoard(Gtk.Window):
         self.height = screen.get_height()
         
         drawing_area = Gtk.DrawingArea()
-        drawing_area.set_size_request(800,self.height - 115)
+        drawing_area.set_size_request((self.width*80)/100,(self.height*80)/100)
         drawing_area.connect("draw", self.draw_board)
         drawing_area.add_events(Gdk.EventMask.KEY_PRESS_MASK)
         self.connect("key-press-event", self.on_key_press)  
