@@ -70,7 +70,7 @@ class SelectPlay(Gtk.Window):
 		board_combo.append_text("Board3")
 		board_combo.append_text("Board4")
 		board_combo.append_text("Board5")
-		board_combo.set_active(1)
+		board_combo.set_active(0)
 		label1.set_mnemonic_widget(board_combo)
 		hbox1.pack_start(board_combo, False, False, 20)
 		
@@ -85,7 +85,6 @@ class SelectPlay(Gtk.Window):
 		#adding values to combobox
 		game_mode_combo.append_text("Normal  mode")
 		game_mode_combo.append_text("Education mode")
-		game_mode_combo.set_active(0)
 		hbox3.pack_start(game_mode_combo, False, False, 0)
 		label3.set_mnemonic_widget(game_mode_combo)
 		label2 = Gtk.Label()
@@ -143,6 +142,10 @@ class SelectPlay(Gtk.Window):
 		#empty list is created to hold player names
 		self.player_name_entries = []
 		self.set_resizable(False)
+
+		game_mode_combo.set_active(0)
+		player_count_combo.set_active(0)
+
 		self.show_all()
 		
 		
