@@ -1,8 +1,6 @@
 #! /usr/bin/python3
 
-from SnakeAndLadder.main import SelectPlay
+from SnakesAndLadders.main import SelectPlay
 
 if __name__ == "__main__":
 	SelectPlay()
-
-Gtk.main()

@@ -124,7 +124,7 @@ class GameBoard(Gtk.Window):
        
         self.create_players()
         self.cwd = os.getcwd()
-        self.data_directory = "usr/share/SnakeAndLadder"
+        self.data_directory = "usr/share/SnakesAndLadders"
         self.player1 = Gst.ElementFactory.make('playbin', 'player1')
         # Playing starting sound
         self.play_file("start")

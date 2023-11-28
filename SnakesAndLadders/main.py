@@ -25,7 +25,7 @@ import gi
 import webbrowser
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk 
-from SnakeAndLadder.board import GameBoard
+from SnakesAndLadders.board import GameBoard
 
 class SelectPlay(Gtk.Window):
 	def __init__(self):
