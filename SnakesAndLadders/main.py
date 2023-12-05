@@ -26,7 +26,13 @@ import webbrowser
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk 
 from SnakesAndLadders.board import GameBoard
+import pygame
 
+pygame.mixer.init()
+# Load and play the background music
+pygame.mixer.music.load('/usr/share/SnakesAndLadders/sounds/bgmusic.ogg')
+pygame.mixer.music.set_volume(0.2)
+pygame.mixer.music.play(-1)
 class SelectPlay(Gtk.Window):
 	def __init__(self):
 		Gtk.Window.__init__(self, title="Select Player")
@@ -39,6 +45,7 @@ class SelectPlay(Gtk.Window):
 		#sets background colour for the window
 		self.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(1, 1, 1, 1))
 		
+
 		#creates an alignment container and add to the window 
 		alignment = Gtk.Alignment()
 		alignment.set(0.5, 0.5, 0.5, 0)
