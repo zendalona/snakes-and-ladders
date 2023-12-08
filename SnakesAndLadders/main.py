@@ -26,19 +26,28 @@ import webbrowser
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk 
 from SnakesAndLadders.board import GameBoard
+import pygame
 
 class SelectPlay(Gtk.Window):
 	def __init__(self):
 		Gtk.Window.__init__(self, title="Select Player")
+
+		pygame.mixer.init()
+
+		# Load and play the background music
+		pygame.mixer.music.load('/usr/share/SnakesAndLadders/sounds/bgmusic.ogg')
+		pygame.mixer.music.set_volume(0.2)
+		pygame.mixer.music.play(-1)
+
 		self.set_default_size(500, 500)
 		self.user_guide_file_path="https://www.google.com/"
-		
 
 		#We will fix this later 
 		#self.connect("destroy", Gtk.main_quit)
 		#sets background colour for the window
 		self.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(1, 1, 1, 1))
 		
+
 		#creates an alignment container and add to the window 
 		alignment = Gtk.Alignment()
 		alignment.set(0.5, 0.5, 0.5, 0)
@@ -148,6 +157,9 @@ class SelectPlay(Gtk.Window):
 
 		self.show_all()
 		
+		self.connect("destroy", self.quit)
+
+		Gtk.main()
 		
 		
 	def on_player_count_changed(self, combo):
@@ -183,10 +195,14 @@ class SelectPlay(Gtk.Window):
 	def on_submit_clicked(self, button):
 		#gets the text from each player name entry field and stores them in the player_names
 		player_names = [entry.get_text() for entry in self.player_name_entries]
-		#destroy the window
-		self.destroy()
+
+
 		#if all player names are provided, a GameBoard instance is created with the count and player names
 		if all(player_names):
+			pygame.mixer.music.stop()
+			#destroy the window
+			self.destroy()
+
 			game_board = GameBoard(self.board_num,self.count, player_names,self.mode)
 			game_board.connect("destroy", Gtk.main_quit)
 			
@@ -216,7 +232,7 @@ class SelectPlay(Gtk.Window):
 		
 	def on_about_clicked(self,button):
 		 self.show_about_dialog()
-    
-win = SelectPlay()
 
-Gtk.main()
+	def quit(self,widget, data=None):
+		self.destroy()
+		Gtk.main_quit()
