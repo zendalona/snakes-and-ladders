@@ -33,6 +33,7 @@ import re
 import os
 from gi.repository import Gtk,Gdk,GLib
 from gi.repository import Atk
+import pygame
 
 Gst.init(None)
 
@@ -76,6 +77,9 @@ class Board:
 class GameBoard(Gtk.Window):
     def __init__(self,board_num,num_players,players_names,mode):
         Gtk.Window.__init__(self, title="Game Board")
+
+        pygame.mixer.init()
+
         if mode ==0:
             self.add_mode=False
         else:
@@ -124,12 +128,20 @@ class GameBoard(Gtk.Window):
        
         self.create_players()
         self.cwd = os.getcwd()
-        self.data_directory = "usr/share/SnakesAndLadders"
+        self.data_directory = "/usr/share/SnakesAndLadders"
+
+        # Load and play the background music
+        pygame.mixer.music.load(self.data_directory+'/sounds/bgmusic.ogg')
+        pygame.mixer.music.set_volume(0.2)
+        pygame.mixer.music.play(-1)
+
         self.player1 = Gst.ElementFactory.make('playbin', 'player1')
         # Playing starting sound
         self.play_file("start")
         time.sleep(1)
         self.notify(self.players_names[0]+" can roll dice by pressing the space bar")
+
+        Gtk.main()
    
     def create_players(self):
         colors = [(0.5, 0.3, 0), (0, 0.7, 0.4), (0.2, 0, 0.5), (0.6, 0.7, 0),(0.0,0.9,0.2)] 
