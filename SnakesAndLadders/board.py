@@ -43,6 +43,7 @@ class Player:
         self.position = position
         self.color=color
         self.chance=chance
+        self.is_winner = False
         
 class Board:
     def __init__(self, board_num,diff):
@@ -83,8 +84,11 @@ class GameBoard(Gtk.Window):
         if mode ==0:
             self.add_mode=False
         else:
-            self.add_mode=True  
-       
+            self.add_mode=True 
+             
+        self.game_over = False 
+        self.win_pos = 0
+        
         self.count = num_players
         self.i=2
         color_rgb = Gdk.RGBA(1, 1, 1, 1)
@@ -550,13 +554,7 @@ class GameBoard(Gtk.Window):
          
                 
             if self.check_game_over():
-                winner = self.get_winner()
-                
-
-            # Randomly select a file name
-                
-                self.play_file("win")
-                self.notify("Congratulations, " + winner.name + " has won the game!")
+               self.notify("The game over !!!!!")
                 
             elif self.dice_number == 6:
                 if player.name == "Machine":
@@ -570,6 +568,9 @@ class GameBoard(Gtk.Window):
             else:
                 self.count += 1
                 player = self.players[self.count % len(self.players)] 
+                while player.is_winner:
+                    self.count += 1
+                    player = self.players[self.count % len(self.players)]
                 if player.name == "Machine":
                     GLib.timeout_add(10000, self.roll_dice)
                 else: 
@@ -674,16 +675,39 @@ class GameBoard(Gtk.Window):
     
     
     def check_game_over(self):
-        for player in self.players:
-            if player.position[0] ==  0 and player.position[1] == 0:
-                return True
-        return False
+	    winner_name = None  # Initialize to None
+	    pcount = 0
+	    if self.game_over == True:
+	        return True
+	    else:
+		    player = self.players[self.count % len(self.players)] 
+		    #for player in self.players:
+		    if player.position[0] == 0 and player.position[1] == 0:
+		        winner_name = player.name  # Store the name of the winning player
+		        self.win_pos = self.win_pos + 1
+		        self.play_file("win")
+		        self.current_position = player.position
+	           
+		        if self.win_pos == 1:
+		            self.notify("Congratulations, " + winner_name + " is the 1st place winner!")
+		        else:
+		            self.notify("Congratulations, "+ winner_name + " secures position" + str(self.win_pos));
+		    if winner_name:
+		        time.sleep(0.3)
+		        # Remove the winning player from the list only if a winner is found
+		        #self.players = [p for p in self.players if p.name != winner_name]
+		        winner = next(p for p in self.players if p.name == winner_name)
+		        player.is_winner = True
+		    for player in self.players:
+		        if player.is_winner == False:
+		            pcount += 1;
+		    if pcount == 1:
+		        self.game_over=True
+		        return True  
+		    else :
+			    return False
 
-    def get_winner(self):
-        for player in self.players:
-            if player.position[0] == 0 and player.position[1] == 0:
-                return player
-        return None
+    
                
     def on_key_press(self, widget, event):
         self.i=1
