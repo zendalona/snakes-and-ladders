@@ -44,6 +44,7 @@ class Player:
         self.color=color
         self.chance=chance
         self.is_winner = False
+        self.active = False
         
 class Board:
     def __init__(self, board_num,diff):
@@ -369,15 +370,13 @@ class GameBoard(Gtk.Window):
             i+=1
             
          
-	       
-            cr.set_source_rgba(1, 0, 0.5, 1)
-            x = player.position[1] * self.square_size
-            y = player.position[0] * self.square_size
-            cr.rectangle(x, y, self.square_size, self.square_size)
-            
-            
-            cr.set_source_rgba(1, 1, 0, 0.3)
-            cr.fill()
+            if player.active == True:  
+                cr.set_source_rgba(*player.color,0.5)
+                x = player.position[1] * self.square_size
+                y = player.position[0] * self.square_size
+                x, y = self.get_cell_coordinates(player.position[0], player.position[1])
+                cr.arc(x + self.square_size/2, y +self.square_size/2, self.square_size // 2, 0, 2 * math.pi) 
+                cr.fill()
             
         #to mark the current position in gameboard
         x = self.current_cell[1] * self.square_size
@@ -422,12 +421,16 @@ class GameBoard(Gtk.Window):
         self.i=1
         self.notify("you got a "+str(self.dice_number)+" on the dice")
         player = self.players[self.count % len(self.players)] 
+        player.active = True
+        self.queue_draw()
         if player.chance == 1 :
             if self.dice_number != 1 and self.dice_number != 6 :
+                player.active = False
                 self.notify(str(player.name)+" , you need a one or six , to get start ")
                 self.count += 1
                 player = self.players[self.count % len(self.players)]
-                
+                player.active = True
+                self.queue_draw()
                 if player.name == "Machine":
                     GLib.timeout_add(6000, self.roll_dice)
                 else:
@@ -567,10 +570,16 @@ class GameBoard(Gtk.Window):
                 
             else:
                 self.count += 1
-                player = self.players[self.count % len(self.players)] 
+                player.active = False
+                player = self.players[self.count % len(self.players)]
+                player.active = True 
+                self.queue_draw() 
                 while player.is_winner:
                     self.count += 1
+                    player.active = False
                     player = self.players[self.count % len(self.players)]
+                    player.active = True
+                    self.queue_draw()  
                 if player.name == "Machine":
                     GLib.timeout_add(10000, self.roll_dice)
                 else: 
@@ -878,6 +887,6 @@ class AccessibleStatusbar(Gtk.Frame):
 
 if __name__ == "__main__":
 	
-	game_board = GameBoard(1,2,["Kevin","Lenin" ],0)
+	game_board = GameBoard(1,1,["Kevin","Lenin" ],0)
 	game_board.connect("destroy", Gtk.main_quit)
 	Gtk.main()
