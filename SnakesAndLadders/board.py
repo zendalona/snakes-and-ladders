@@ -98,6 +98,7 @@ class GameBoard(Gtk.Window):
         self.dice_number=1
         self.typed_value =0
         self.correct_answer=0
+        self.roll = 0
        
         self.board_num = board_num
         self.connect("destroy", self.cleanup)
@@ -419,6 +420,7 @@ class GameBoard(Gtk.Window):
         self.play_file('dice_sound')
         self.dice_number = random.randint(1, 6)
         self.i=1
+        self.roll = 1
         self.notify("you got a "+str(self.dice_number)+" on the dice")
         player = self.players[self.count % len(self.players)] 
         player.active = True
@@ -429,6 +431,7 @@ class GameBoard(Gtk.Window):
                 self.notify(str(player.name)+" , you need a one or six , to get start ")
                 self.count += 1
                 player = self.players[self.count % len(self.players)]
+                self.roll = 0
                 player.active = True
                 self.queue_draw()
                 if player.name == "Machine":
@@ -493,12 +496,14 @@ class GameBoard(Gtk.Window):
         
         self.queue_draw() 
         time.sleep(1)
+        self.roll = 0
         self.speak_number(current_row, new_col,player) 
                 
 
         
     def calc_position(self,dice_num,row,col):
         
+        self.roll = 1
         self.current_pos=self.calculate_cell(row,col)
         self.correct_answer=str(self.correct_answer)+str( self.current_pos+dice_num)
         self.notify(str(self.current_pos)+" plus "+str(dice_num)+" equals to ")     
@@ -732,15 +737,17 @@ class GameBoard(Gtk.Window):
             self.move_current_cell(0, 1)
         #check whether player pressed spacebar ,and execute roll_dice method
         elif keyval == Gdk.KEY_space:
-            self.roll_dice()
+            if self.roll == 0:
+                self.roll_dice()
         elif  keyval == Gdk.KEY_p :
             self.speak_player_position()
         elif   keyval == Gdk.KEY_a :
             self.speak_board()
         
         elif Gdk.keyval_name(keyval).isdigit():
-            self.typed_value =str(self.typed_value)+ Gdk.keyval_name(keyval)
-            print("ans"+str(self.typed_value) ) 
+            if self.roll == 1:
+                self.typed_value =str(self.typed_value)+ Gdk.keyval_name(keyval)
+                print("ans"+str(self.typed_value) ) 
             
         elif keyval == Gdk.KEY_BackSpace:
             key_value_str = str(self.typed_value)
@@ -748,7 +755,8 @@ class GameBoard(Gtk.Window):
                 self.typed_value = (key_value_str[:-1])
             
         elif keyval == Gdk.KEY_Return:
-            self.check_ans()
+            if self.typed_value != 0:
+                self.check_ans()
         self.queue_draw()
     
     def check_ans(self):
@@ -758,13 +766,16 @@ class GameBoard(Gtk.Window):
         if (self.typed_value) == str(self.correct_answer):
             self.play_file("correct",2)
             self.notify("You are correct!")
-            
+            self.roll=0 
+            self.typed_value = 0
             self.move_pos(self.dice_number)
         else:
             if self.wrong_count == 3:
                 self.notify("you are wrong")
                 self.play_file("wrong-anwser",3)
                 self.notify("the correct position is "+str(int(self.correct_answer)));
+                self.roll=0 
+                self.typed_value = 0
                 self.move_pos(self.dice_number)
             else:
                 self.notify("your answer "+str(int(self.typed_value)))
@@ -887,6 +898,6 @@ class AccessibleStatusbar(Gtk.Frame):
 
 if __name__ == "__main__":
 	
-	game_board = GameBoard(1,1,["Kevin","Lenin" ],0)
+	game_board = GameBoard(1,2,["Kevin","Lenin" ],1)
 	game_board.connect("destroy", Gtk.main_quit)
 	Gtk.main()
